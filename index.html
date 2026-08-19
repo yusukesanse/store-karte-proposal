@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>店舗カルテシステム システム案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* Hallmark · genre: modern-minimal · macrostructure: Long Document · theme: Coral (JP faces) · enrichment: E5 hand-built SVG · nav: N3 side-rail · footer: Ft2 inline */
+*,*::before,*::after{box-sizing:border-box}
+html,body{overflow-x:clip}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:var(--space-xl)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--color-paper);color:var(--color-ink);font-family:var(--font-body);font-size:var(--text-base);line-height:1.8;font-feature-settings:"palt"}
+a{color:var(--color-ink);text-decoration:underline;text-decoration-color:var(--color-rule-2);text-underline-offset:.2em;transition:text-decoration-color var(--dur-base) var(--ease-out)}
+a:hover{text-decoration-color:var(--color-accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--color-focus);outline-offset:3px;border-radius:2px}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:700;font-style:normal;line-height:1.35;letter-spacing:.01em;overflow-wrap:anywhere;min-width:0;color:var(--color-ink)}
+h1{font-size:var(--text-display);margin:0 0 var(--space-md);line-height:1.25}
+h2{font-size:var(--text-xl);margin:var(--space-4xl) 0 var(--space-lg);padding-top:var(--space-lg);border-top:var(--rule-2)}
+h2 .num{font-family:var(--font-mono);font-weight:500;font-size:var(--text-sm);color:var(--color-accent);letter-spacing:.06em;display:block;margin-bottom:var(--space-xs)}
+h3{font-size:var(--text-md);margin:var(--space-2xl) 0 var(--space-sm)}
+h4{font-size:var(--text-base);margin:var(--space-lg) 0 var(--space-xs)}
+p,ul,ol{margin:0 0 var(--space-md);max-width:var(--measure)}
+ul,ol{padding-left:1.4em}
+li{margin-bottom:var(--space-2xs)}
+li>ul{margin-top:var(--space-2xs);margin-bottom:var(--space-xs)}
+strong{font-weight:700}
+small,.small{font-size:var(--text-sm);color:var(--color-muted)}
+code,.mono{font-family:var(--font-mono);font-size:.9em}
+hr{border:0;border-top:var(--rule-1);margin:var(--space-2xl) 0}
+mark{background:linear-gradient(transparent 55%,var(--color-accent-soft) 55%);color:inherit;padding:0 .1em}
+
+/* layout: side rail + article */
+.page{max-width:1240px;margin:0 auto;padding:0 var(--space-lg)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-2xl)}
+@media (min-width:1024px){.layout{grid-template-columns:220px minmax(0,1fr);gap:var(--space-3xl)}}
+.rail{position:relative}
+@media (min-width:1024px){.rail>div{position:sticky;top:var(--space-xl);max-height:calc(100vh - var(--space-2xl));overflow:auto;padding-right:var(--space-sm)}}
+.rail .brand{font-family:var(--font-display);font-weight:700;font-size:var(--text-sm);letter-spacing:.02em;margin:0 0 var(--space-md);padding-bottom:var(--space-sm);border-bottom:var(--rule-2)}
+.rail nav ol{list-style:none;padding:0;margin:0;display:flex;gap:var(--space-xs) var(--space-md);flex-wrap:wrap}
+@media (min-width:1024px){.rail nav ol{display:block}}
+.rail nav a{display:block;font-size:var(--text-sm);text-decoration:none;color:var(--color-muted);padding:var(--space-2xs) 0;border-left:2px solid transparent;white-space:nowrap}
+@media (min-width:1024px){.rail nav a{padding-left:var(--space-sm);white-space:normal}}
+.rail nav a:hover{color:var(--color-ink)}
+.rail nav a.on{color:var(--color-ink);border-left-color:var(--color-accent)}
+.rail nav a .n{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);margin-right:.5em}
+.rail .meta{margin-top:var(--space-lg);font-size:var(--text-xs);color:var(--color-muted);line-height:1.6}
+@media (max-width:1023.98px){.rail{border-bottom:var(--rule-1);padding-bottom:var(--space-md)}.rail .meta{display:none}}
+
+/* masthead */
+.mast{padding:var(--space-2xl) 0 var(--space-lg)}
+.mast .kicker{font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent);margin:0 0 var(--space-sm)}
+.mast .lede{font-size:var(--text-md);color:var(--color-ink-2);max-width:var(--measure)}
+.mast .facts{display:flex;flex-wrap:wrap;gap:var(--space-xs) var(--space-lg);margin-top:var(--space-lg);font-size:var(--text-sm);color:var(--color-muted)}
+.mast .facts b{color:var(--color-ink);font-weight:500}
+.status{display:inline-block;font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:.06em;padding:.15em .55em;border:1px solid var(--color-accent);color:var(--color-accent);border-radius:var(--radius-sm);vertical-align:middle;margin-left:.5em}
+
+/* blocks */
+.wide{max-width:none}
+.note{border-left:3px solid var(--color-accent);padding:var(--space-xs) var(--space-md);background:var(--color-paper-2);max-width:var(--measure);margin:var(--space-lg) 0;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.note p:last-child{margin-bottom:0}
+.note.q{border-left-color:var(--color-rule-2)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-md);max-width:none}
+@media (min-width:720px){.kv{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.kv>div{border-top:2px solid var(--color-ink);padding-top:var(--space-sm)}
+.kv b{display:block;font-family:var(--font-display);font-size:var(--text-md);margin-bottom:var(--space-2xs)}
+.kv p{font-size:var(--text-sm);color:var(--color-ink-2);margin:0}
+.kv .k{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-accent);letter-spacing:.06em}
+
+/* tables */
+.tbl{overflow-x:auto;max-width:none;margin:var(--space-lg) 0;border-top:2px solid var(--color-ink)}
+table{border-collapse:collapse;width:100%;font-size:var(--text-sm);line-height:1.6;background:transparent}
+th,td{text-align:left;vertical-align:top;padding:var(--space-xs) var(--space-sm);border-bottom:var(--rule-1)}
+th{font-weight:700;color:var(--color-ink);white-space:nowrap;background:var(--color-paper-2)}
+td .id{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-accent);white-space:nowrap}
+td.c,th.c{text-align:center}
+.dot{display:inline-block;width:.6em;height:.6em;border-radius:50%;background:var(--color-ok);vertical-align:middle}
+.dot.half{background:linear-gradient(90deg,var(--color-ok) 50%,transparent 50%);border:1px solid var(--color-ok)}
+.dot.no{background:transparent;border:1px solid var(--color-rule-2)}
+.tag{display:inline-block;font-size:var(--text-xs);padding:.05em .5em;border-radius:var(--radius-sm);background:var(--color-paper-3);color:var(--color-ink-2);white-space:nowrap;margin:.1em .15em .1em 0}
+.tag.a{background:var(--color-accent-soft);color:var(--color-accent)}
+.tag.i{background:var(--color-info-soft);color:var(--color-info)}
+.tag.o{background:var(--color-ok-soft);color:var(--color-ok)}
+.tag.w{background:var(--color-warn-soft);color:var(--color-warn)}
+
+/* feature list */
+.feat{list-style:none;padding:0;margin:var(--space-lg) 0;max-width:none;display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+.feat li{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-2xs) var(--space-lg);padding:var(--space-md) 0;border-top:var(--rule-1);margin:0}
+@media (min-width:720px){.feat li{grid-template-columns:120px minmax(0,1fr) 220px}}
+.feat .id{font-family:var(--font-mono);font-size:var(--text-sm);color:var(--color-accent)}
+.feat h4{margin:0 0 var(--space-2xs);font-size:var(--text-base)}
+.feat p{margin:0;font-size:var(--text-sm);color:var(--color-ink-2);max-width:none}
+.feat .from{font-size:var(--text-xs);color:var(--color-muted);line-height:1.5}
+.feat .from b{display:block;color:var(--color-ink-2);font-weight:500}
+
+/* figures / diagrams */
+figure{margin:var(--space-lg) 0 var(--space-xl);max-width:none}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:var(--text-xs);color:var(--color-muted);margin-top:var(--space-xs);font-family:var(--font-mono);letter-spacing:.02em}
+.svgtxt{font-family:var(--font-body);font-size:13px;fill:var(--color-ink)}
+.svgtxt.s{font-size:11px;fill:var(--color-muted)}
+.svgtxt.b{font-family:var(--font-display);font-weight:700;font-size:14px}
+.svgtxt.m{font-family:var(--font-mono);font-size:11px;fill:var(--color-accent);letter-spacing:.06em}
+.box{fill:var(--color-paper);stroke:var(--color-ink);stroke-width:1.2}
+.box.soft{fill:var(--color-paper-2);stroke:var(--color-rule-2)}
+.box.acc{fill:var(--color-accent-soft);stroke:var(--color-accent)}
+.box.dark{fill:var(--color-graphite);stroke:var(--color-graphite)}
+.ln{stroke:var(--color-ink-2);stroke-width:1.2;fill:none}
+.ln.d{stroke-dasharray:4 4;stroke:var(--color-muted)}
+
+/* wireframes — schematic blocks, no fake browser chrome */
+.wf{border:var(--rule-2);border-radius:var(--radius-md);padding:var(--space-md);background:var(--color-paper);font-size:var(--text-xs);color:var(--color-ink-2);line-height:1.5}
+.wf .row{display:grid;gap:var(--space-xs);margin-bottom:var(--space-xs)}
+.wf .blk{border:1px dashed var(--color-rule-2);border-radius:var(--radius-sm);padding:var(--space-xs) var(--space-sm);min-height:2.4em;background:var(--color-paper-2)}
+.wf .blk.hd{background:var(--color-paper-3);border-style:solid;font-weight:500;color:var(--color-ink)}
+.wf .blk.acc{border-color:var(--color-accent);border-style:solid;background:var(--color-accent-soft);color:var(--color-accent)}
+.wf .blk.tall{min-height:7em}
+.wf .lbl{font-family:var(--font-mono);color:var(--color-accent);letter-spacing:.04em;margin-bottom:var(--space-2xs);display:block}
+.wfgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-lg);max-width:none;margin:var(--space-lg) 0}
+@media (min-width:900px){.wfgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.wfgrid figure{margin:0}
+.wfgrid figcaption{font-family:var(--font-body);font-size:var(--text-sm);color:var(--color-ink-2);letter-spacing:0}
+.wfgrid figcaption b{color:var(--color-ink)}
+
+/* steps */
+.steps{list-style:none;padding:0;margin:var(--space-lg) 0;max-width:none;counter-reset:s}
+.steps li{position:relative;padding:var(--space-md) 0 var(--space-md) 3.2rem;border-top:var(--rule-1);margin:0}
+.steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);position:absolute;left:0;top:var(--space-md);font-family:var(--font-mono);font-size:var(--text-md);color:var(--color-accent)}
+.steps b{font-family:var(--font-display);display:block;margin-bottom:var(--space-2xs)}
+.steps p{margin:0;font-size:var(--text-sm);color:var(--color-ink-2)}
+
+/* dark band — one per page */
+.band{background:var(--color-graphite);color:var(--color-graphite-ink);margin:var(--space-3xl) calc(-1 * var(--space-lg));padding:var(--space-2xl) var(--space-lg)}
+@media (min-width:1024px){.band{margin-left:0;margin-right:0;border-radius:var(--radius-lg);padding:var(--space-2xl)}}
+.band h2{border-top:0;margin-top:0;padding-top:0;color:var(--color-graphite-ink)}
+.band h3{color:var(--color-graphite-ink)}
+.band p,.band li{color:var(--color-band-ink-2)}
+.band .kv>div{border-top-color:var(--color-band-rule)}
+.band .kv b{color:var(--color-graphite-ink)}
+.band .kv p{color:var(--color-band-ink-2)}
+.band a{color:var(--color-graphite-ink)}
+.band figcaption{color:var(--color-band-muted)}
+
+footer{border-top:var(--rule-1);margin-top:var(--space-4xl);padding:var(--space-lg) 0 var(--space-2xl);font-size:var(--text-xs);color:var(--color-muted);display:flex;flex-wrap:wrap;gap:var(--space-xs) var(--space-lg)}
+footer b{color:var(--color-ink-2);font-weight:500}
+@media print{.rail,footer{display:none}.band{background:transparent;color:var(--color-ink);border:var(--rule-2);margin:var(--space-lg) 0}.band h2,.band h3,.band p,.band li,.band .kv b,.band .kv p{color:var(--color-ink)}h2{break-after:avoid}figure,.tbl,.wf,li{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="layout">
+<aside class="rail"><div>
+  <p class="brand">店舗カルテシステム<br><span class="small">システム案</span></p>
+  <nav aria-label="目次"><ol>
+    <li><a href="#s0"><span class="n">00</span>この資料について</a></li>
+    <li><a href="#s1"><span class="n">01</span>目的と現状の課題</a></li>
+    <li><a href="#s2"><span class="n">02</span>システムの全体像</a></li>
+    <li><a href="#s3"><span class="n">03</span>主要機能</a></li>
+    <li><a href="#s4"><span class="n">04</span>画面構成</a></li>
+    <li><a href="#s5"><span class="n">05</span>データ構造</a></li>
+    <li><a href="#s6"><span class="n">06</span>利用者と権限</a></li>
+    <li><a href="#s7"><span class="n">07</span>調査フェーズとの対応</a></li>
+    <li><a href="#s8"><span class="n">08</span>技術構成</a></li>
+    <li><a href="#s9"><span class="n">09</span>セキュリティ・データの扱い</a></li>
+    <li><a href="#s10"><span class="n">10</span>保守・運用</a></li>
+    <li><a href="#s11"><span class="n">11</span>導入ステップ</a></li>
+    <li><a href="#s12"><span class="n">12</span>ご確認したい事項</a></li>
+    <li><a href="#s13"><span class="n">A</span>付録</a></li>
+  </ol></nav>
+  <p class="meta">v0.1 ドラフト<br>2026-08-19<br>エイトデザイン株式会社</p>
+</div></aside>
+
+<main>
+<header class="mast" id="top">
+  <p class="kicker">Store Karte System · Proposal v0.1</p>
+  <h1>店舗カルテシステム<br>システム案<span class="status">DRAFT</span></h1>
+  <p class="lede">多店舗 耐震・リニューアル計画のために整備した「店舗カルテ雛形 v1.0」と「調査要領書 v1.0」を、Excel と共有フォルダの運用から、<mark>全店舗を横断して入力・集計・判定できる Web アプリ</mark>へ移すための構成案です。項目や評価の物差しは雛形のまま引き継ぎ、アプリは「入力を楽に、集計を自動に、記録を残す」役割に徹します。</p>
+  <div class="facts">
+    <span>対象 <b>全30店舗</b></span>
+    <span>調査項目 <b>12区分・168項目</b></span>
+    <span>評価 <b>20軸・100点満点</b></span>
+    <span>投資区分 <b>S／A／B／C</b></span>
+    <span>調査期間の標準モデル <b>約6ヶ月</b></span>
+  </div>
+</header>
+
+<section id="s0">
+<h2><span class="num">00</span>この資料について</h2>
+<p>本資料は「何を作るか」（構成・機能・画面・データ・運用）を共有するためのシステム案です。<strong>費用・体制・契約条件は別紙のお見積りで提示します。</strong>ここに書いた内容は打ち合わせでの確認を経て確定させる前提のドラフトで、章末の「ご確認したい事項」への回答によって一部が変わります。</p>
+<div class="kv">
+  <div><span class="k">前提資料</span><b>店舗カルテ雛形 v1.0</b><p>1店舗1ファイルの Excel。17シート・168項目・スコアリング。2026-08-07 初版</p></div>
+  <div><span class="k">前提資料</span><b>調査要領書 v1.0＋別紙1〜4</b><p>5フェーズの調査手順、体制、依頼資料20点、現地調査・ヒアリングの様式</p></div>
+  <div><span class="k">前提資料</span><b>プロトタイプ v0.1</b><p>ブラウザ内で動く1店舗分の試作。<a href="prototype/">同梱（別ページで開く）</a></p></div>
+</div>
+</section>
+
+<section id="s1">
+<h2><span class="num">01</span>目的と現状の課題</h2>
+<p>調査の目的は雛形に定義されているとおり、<strong>全店舗を同じ物差しで「建物・施設・商圏・資産」の4視点から診断し、投資区分（S 戦略投資／A 継続投資／B 維持投資／C 再編検討）と優先順位を決める材料を作る</strong>ことです。システムはこの目的に対する道具であり、目的そのものを変えません。</p>
+
+<h3>いまの設計（Excel＋共有フォルダ）で起こること</h3>
+<p>雛形と要領書は完成度が高く、そのまま調査を始められます。一方で、30店舗・約6ヶ月・複数の入力者という規模になると、Excel 運用では次の作業が人手に残ります。</p>
+<div class="tbl"><table>
+<thead><tr><th style="width:6em">場面</th><th>Excel運用で起こること</th><th>影響</th></tr></thead>
+<tbody>
+<tr><td>全店比較</td><td>各カルテの「スコアリング」結果を<strong>サマリー一覧へ手で転記</strong>する</td><td>転記ミス・転記漏れ。カルテを直すたびに一覧も直す</td></tr>
+<tr><td>相対評価</td><td>C1「現在商圏規模」などは<strong>全店データが揃ってから分布を見て基準を確定し再採点</strong>する</td><td>再採点のたびに30ファイルを開き直す</td></tr>
+<tr><td>版管理</td><td>パイロット後に雛形を v1.1 へ改訂すると、<strong>着手済みのファイルにも反映</strong>が要る</td><td>店舗ごとに版がずれる。どの版で採点したか追えなくなる</td></tr>
+<tr><td>同時作業</td><td>調査スタッフ・設計担当・商圏分析担当・クライアント側担当が<strong>同じファイルを順番に</strong>触る</td><td>待ち時間、上書き、最新版の取り違え</td></tr>
+<tr><td>写真・資料</td><td>写真は共有フォルダ、カルテには<strong>写真番号を手で書いて紐付け</strong>る</td><td>紐付けが切れる。現地で撮った写真の整理が翌日に持ち越す</td></tr>
+<tr><td>進捗・品質</td><td>進捗率はカルテ内で自動計算されるが、<strong>30店舗の進捗を横断して見る場所がない</strong>。レビュー（記入者→設計担当→PM）の状態も追えない</td><td>週次定例で各ファイルを開いて確認</td></tr>
+<tr><td>年次更新</td><td>翌年以降の更新は<strong>ファイルのコピーで世代を増やす</strong></td><td>前年との差分が取れない。ファイルが増殖する</td></tr>
+<tr><td>守秘</td><td>ファイルの配布で共有するため、<strong>再編に関わる所見も同じファイルに載る</strong></td><td>閲覧範囲をファイル単位でしか切れない</td></tr>
+</tbody></table></div>
+
+<h3>システムで目指す状態</h3>
+<p>「調査で使う道具」と「判定後も使い続ける台帳」を、ひとつのアプリにします。</p>
+<div class="kv">
+  <div><span class="k">01</span><b>雛形をそのまま写す</b><p>項目・選択肢・評価基準・重み・判定ロジックは<strong>マスタ</strong>として持ち、版番号で管理する。画面上の並びも雛形と同じ 1-1 → 4-2 の順にする</p></div>
+  <div><span class="k">02</span><b>現場優先の入力</b><p>1項目1行、調査状況をその場で更新、写真はその項目に直接添付。調査日・記入者は自動記録。タブレット・スマートフォンでも入力できる</p></div>
+  <div><span class="k">03</span><b>全店を横断して見る</b><p>サマリー一覧・分布・相対評価は自動集計。進捗とレビュー状態を全店で一覧できる。判定会議資料と Excel／PDF の出力を用意する</p></div>
+</div>
+</section>
+
+<section id="s2">
+<h2><span class="num">02</span>システムの全体像</h2>
+<p>利用者はブラウザから1つのアプリにログインし、権限に応じた店舗・区分を入力または閲覧します。データはすべて1つのデータベースに入り、集計・判定・出力はそこから作られます。</p>
+<figure>
+<svg viewBox="0 0 960 430" role="img" aria-labelledby="fig1t"><title id="fig1t">システム全体像：利用者、Webアプリ、データベース、出力の関係</title>
+  <!-- users -->
+  <text x="20" y="28" class="svgtxt m">利用者</text>
+  <rect x="20" y="40" width="250" height="54" rx="6" class="box"/><text x="34" y="62" class="svgtxt b">調査チーム（エイトデザイン）</text><text x="34" y="82" class="svgtxt s">PM／設計担当／調査スタッフ／商圏分析</text>
+  <rect x="20" y="106" width="250" height="54" rx="6" class="box"/><text x="34" y="128" class="svgtxt b">クライアント側 入力担当</text><text x="34" y="148" class="svgtxt s">施設運用・商圏まわりの項目を分担入力</text>
+  <rect x="20" y="172" width="250" height="54" rx="6" class="box"/><text x="34" y="194" class="svgtxt b">クライアント側 閲覧者</text><text x="34" y="214" class="svgtxt s">経営層・判定会議メンバー</text>
+  <rect x="20" y="238" width="250" height="54" rx="6" class="box soft"/><text x="34" y="260" class="svgtxt b">外部委託（必要時）</text><text x="34" y="280" class="svgtxt s">耐震診断・鑑定など、担当店舗の該当区分のみ</text>
+  <!-- arrows to app -->
+  <path d="M270 67 H300 M270 133 H300 M270 199 H300 M270 265 H300" class="ln"/>
+  <path d="M300 67 V265" class="ln"/><path d="M300 166 H330" class="ln"/><path d="M324 161 L332 166 L324 171" class="ln"/>
+  <!-- app -->
+  <text x="334" y="28" class="svgtxt m">Web アプリ（PC・タブレット・スマートフォン）</text>
+  <rect x="334" y="40" width="300" height="252" rx="8" class="box acc"/>
+  <text x="352" y="72" class="svgtxt b">全店舗ダッシュボード</text><text x="352" y="90" class="svgtxt s">スコア・判定・耐震フラグ・進捗の一覧</text>
+  <text x="352" y="122" class="svgtxt b">店舗カルテ／調査入力</text><text x="352" y="140" class="svgtxt s">12区分・168項目、写真・資料の添付</text>
+  <text x="352" y="172" class="svgtxt b">スコアリング・判定</text><text x="352" y="190" class="svgtxt s">20軸・重み・自動判定・PM最終判定</text>
+  <text x="352" y="222" class="svgtxt b">レビュー・承認／マスタ管理</text><text x="352" y="240" class="svgtxt s">記入→設計担当→PM、雛形の版管理</text>
+  <text x="352" y="272" class="svgtxt b">出力</text><text x="352" y="286" class="svgtxt s">サマリー一覧・カルテ PDF／Excel</text>
+  <!-- db -->
+  <path d="M634 166 H700" class="ln"/><path d="M694 161 L702 166 L694 171" class="ln"/>
+  <text x="704" y="28" class="svgtxt m">データベース・ファイル保管</text>
+  <rect x="704" y="40" width="236" height="252" rx="8" class="box"/>
+  <text x="722" y="72" class="svgtxt b">店舗 × 調査年度</text>
+  <text x="722" y="100" class="svgtxt">回答（168項目）・調査状況</text>
+  <text x="722" y="124" class="svgtxt">スコア（20軸）・判定・判定理由</text>
+  <text x="722" y="148" class="svgtxt">写真・受領資料・ヒアリング記録</text>
+  <text x="722" y="172" class="svgtxt">項目・選択肢・評価基準マスタ（版）</text>
+  <text x="722" y="196" class="svgtxt">利用者・権限</text>
+  <text x="722" y="220" class="svgtxt">変更履歴（誰が・いつ・何を）</text>
+  <text x="722" y="256" class="svgtxt s">日次バックアップ／全件の引き渡しが可能</text>
+  <!-- outputs -->
+  <path d="M484 292 V330" class="ln"/><path d="M479 324 L484 332 L489 324" class="ln"/>
+  <text x="20" y="352" class="svgtxt m">出力・活用</text>
+  <rect x="20" y="364" width="215" height="46" rx="6" class="box soft"/><text x="34" y="392" class="svgtxt">全店舗サマリー一覧（自動集計）</text>
+  <rect x="250" y="364" width="215" height="46" rx="6" class="box soft"/><text x="264" y="392" class="svgtxt">店舗カルテ PDF／Excel</text>
+  <rect x="480" y="364" width="215" height="46" rx="6" class="box soft"/><text x="494" y="392" class="svgtxt">判定会議資料（ブロック別）</text>
+  <rect x="710" y="364" width="230" height="46" rx="6" class="box soft"/><text x="724" y="392" class="svgtxt">中長期実行計画の基礎データ</text>
+</svg>
+<figcaption>図1 · システムの全体像。実線は入力・参照の流れ。</figcaption>
+</figure>
+<p>特徴は3つです。<strong>①入り口が1つ</strong>（ファイルの受け渡しがない）、<strong>②データが1箇所</strong>（転記がない）、<strong>③出力は雛形と同じ体裁</strong>（判定会議や社内説明でこれまでの様式をそのまま使える）。</p>
+</section>
+
+<section id="s3">
+<h2><span class="num">03</span>主要機能</h2>
+<p>雛形・要領書のどの部分をアプリのどの機能が受け持つかを対応させて並べます。右列が「Excel版ではどこにあったか」です。</p>
+<ul class="feat wide">
+<li><span class="id">F-01</span><div><h4>全店舗ダッシュボード</h4><p>30店舗のスコア（A〜D・総合）、耐震フラグ、自動判定、PM最終判定、優先順位、実施フェーズ、進捗率を一覧。並べ替え・絞り込み（ブロック、耐震区分、判定）。分布（総合スコアのヒストグラム、A×C の判定マトリクス上の散布）を表示。</p></div><div class="from"><b>全店舗サマリー一覧_v1.0.xlsx</b>手転記だった一覧を自動集計に</div></li>
+<li><span class="id">F-02</span><div><h4>店舗カルテ（表紙）</h4><p>調査基本情報、物件概要（1-1・1-2から自動表示）、スコアサマリー、耐震アラート、12シートの進捗、総評。店舗ごとの入口画面。</p></div><div class="from"><b>雛形「表紙」シート</b></div></li>
+<li><span class="id">F-03</span><div><h4>調査入力（12区分・168項目）</h4><p>1項目1行で「記入内容・単位／形式・特記事項・情報源・調査方法・調査状況」を入力。選択式はマスタのドロップダウン。自動計算項目（築年数・残存契約期間・人口指数・トヨタ保有シェア）は入力不可で自動表示。調査日・記入者は自動記録。フェーズ／担当／調査状況で絞り込める（別紙1の使い方をそのまま画面に）。</p></div><div class="from"><b>雛形 1-1〜4-2 シート＋別紙1</b>黄セル・灰セルの区別を画面上の入力可否に</div></li>
+<li><span class="id">F-04</span><div><h4>写真・受領資料の添付</h4><p>写真を項目に直接添付（スマートフォンのカメラから可）。写真番号は自動採番、店舗・区分・項目で検索。受領資料（別紙2の20点）は店舗ごとに受領状況・受領日・ファイルを管理し、「優先度A未受領」を一覧できる。</p></div><div class="from"><b>共有フォルダ 02_受領資料／04_写真＋別紙2</b>手書きの写真番号紐付けを不要に</div></li>
+<li><span class="id">F-05</span><div><h4>ヒアリング記録</h4><p>別紙4の質問票（店舗責任者／営業／サービス）をフォーム化。回答は生データとして保存し、カルテ 2-3-08〜10 に要点を転記する欄を別に持つ。匿名化フラグで、個人が特定される記述を閲覧制限できる。</p></div><div class="from"><b>別紙4 ヒアリング質問票</b></div></li>
+<li><span class="id">F-06</span><div><h4>スコアリング・投資区分判定</h4><p>20軸を1〜5点で入力（評価基準の文言を横に表示）。重み（既定 30／20／30／20、合計100）を調整可。換算点・総合スコア・耐震フラグ・自動判定（A×C マトリクス）を自動計算し、PM最終判定と判定理由を記録。<strong>相対評価軸（C1 現在商圏規模など）は全店の分布から自動で基準を算出し、再採点が要る店舗を知らせる。</strong></p></div><div class="from"><b>雛形「スコアリング」「評価基準」シート</b>相対評価の再採点を自動化</div></li>
+<li><span class="id">F-07</span><div><h4>レビュー・承認</h4><p>店舗×シートごとに「記入中 → セルフチェック済 → 設計担当レビュー済 → PM承認」の状態を持つ。1-2・4-2 は設計担当レビューを必須にする。誰がいつ何を変えたかの変更履歴を項目単位で残す。</p></div><div class="from"><b>要領書 §7 品質管理ルール</b></div></li>
+<li><span class="id">F-08</span><div><h4>マスタ・版管理</h4><p>調査項目・選択肢・評価基準・重み・判定ロジックを版付きで管理。パイロット後の v1.1 改訂を全店へ一括適用し、各店舗が「どの版で採点したか」を保持する。編集は PM 権限のみ。</p></div><div class="from"><b>雛形「選択肢マスタ」＋要領書 §11 版管理</b></div></li>
+<li><span class="id">F-09</span><div><h4>出力</h4><p>店舗カルテ（PDF、および雛形と同じ列構成の Excel）、全店舗サマリー一覧（Excel）、ブロック別の判定会議資料（PDF）。要領書のフォルダ構成（03_カルテ／06_スコアリング・判定 など）に沿ったファイル名で書き出す。</p></div><div class="from"><b>要領書 §8 格納ルール</b>既存の様式・命名を維持</div></li>
+<li><span class="id">F-10</span><div><h4>年次更新（調査年度の世代管理）</h4><p>調査年度を切り替えて同じ店舗の回答・スコアを世代管理。新年度は前年の値を引き継いだうえで「更新が必要な項目」だけを対象に依頼できる。前年との差分表示。</p></div><div class="from"><b>（新規）</b>年次・定期更新の運用を最初から組み込む</div></li>
+<li><span class="id">F-11</span><div><h4>利用者・権限・監査ログ</h4><p>役割ごとに閲覧・入力できる店舗と区分を制御（§06）。ログイン・閲覧・変更の記録。退職・異動時のアカウント停止。</p></div><div class="from"><b>要領書 §9 守秘</b></div></li>
+</ul>
+<div class="note"><p><strong>作らないもの（今回のスコープ外として明示）</strong>：GIS の商圏計算そのもの（jSTAT MAP 等の外部ツールの結果を入力・添付する）、耐震診断・不動産鑑定の計算、会計システムとの連携。外部データの<em>取り込み</em>（クライアント実績データ・UIO データの CSV 取込）はオプションとして §12 で確認します。</p></div>
+</section>
+
+<section id="s4">
+<h2><span class="num">04</span>画面構成</h2>
+<p>画面は雛形のシート構成に合わせ、覚え直しが要らないようにします。ID は以降の見積・設計で共通に使います。</p>
+<div class="tbl"><table>
+<thead><tr><th>ID</th><th>画面</th><th>目的</th><th>主な利用者</th><th>対応する雛形</th></tr></thead>
+<tbody>
+<tr><td><span class="id">A-01</span></td><td>ログイン</td><td>メール＋パスワード（招待制）。多要素認証は任意</td><td>全員</td><td>—</td></tr>
+<tr><td><span class="id">A-02</span></td><td>全店舗ダッシュボード</td><td>スコア・判定・進捗の一覧、分布、絞り込み、Excel出力</td><td>PM・閲覧者</td><td>全店舗サマリー一覧</td></tr>
+<tr><td><span class="id">A-03</span></td><td>店舗カルテ（表紙）</td><td>店舗の入口。基本情報・スコアサマリー・耐震アラート・進捗・総評</td><td>全員</td><td>表紙</td></tr>
+<tr><td><span class="id">A-04</span></td><td>調査入力（区分別）</td><td>1-1〜4-2 の項目入力、写真添付、調査状況更新、絞り込み</td><td>調査スタッフ・設計担当・商圏分析・クライアント入力担当</td><td>1-1〜4-2</td></tr>
+<tr><td><span class="id">A-05</span></td><td>写真・資料</td><td>店舗の写真一覧（項目・日付で検索）、受領資料の受領状況</td><td>調査スタッフ・PM</td><td>04_写真／別紙2</td></tr>
+<tr><td><span class="id">A-06</span></td><td>ヒアリング</td><td>職種別質問票の記録と要点転記</td><td>調査スタッフ</td><td>別紙4</td></tr>
+<tr><td><span class="id">A-07</span></td><td>スコアリング</td><td>20軸の評価入力、重み、総合スコア、自動判定、PM最終判定</td><td>設計担当・PM</td><td>スコアリング／評価基準</td></tr>
+<tr><td><span class="id">A-08</span></td><td>レビュー</td><td>店舗×シートの承認状態、差戻しコメント、変更履歴</td><td>設計担当・PM</td><td>要領書 §7</td></tr>
+<tr><td><span class="id">A-09</span></td><td>出力</td><td>カルテ PDF／Excel、サマリー一覧、判定会議資料の生成</td><td>PM</td><td>要領書 §8</td></tr>
+<tr><td><span class="id">A-10</span></td><td>マスタ管理</td><td>項目・選択肢・評価基準・重みの版管理と一括適用</td><td>PM</td><td>選択肢マスタ／§11</td></tr>
+<tr><td><span class="id">A-11</span></td><td>利用者・権限</td><td>招待、役割、担当店舗の割当、停止、監査ログ</td><td>PM（管理者）</td><td>要領書 §3・§9</td></tr>
+<tr><td><span class="id">A-12</span></td><td>調査年度</td><td>年度の作成・引き継ぎ・差分</td><td>PM</td><td>（新規）</td></tr>
+</tbody></table></div>
+
+<h3>主要画面のラフ</h3>
+<p>配置の意図を伝えるための概略です。見た目のデザインはこの後の工程で詰めます。</p>
+<div class="wfgrid">
+<figure><div class="wf" aria-label="全店舗ダッシュボードのレイアウト概略">
+  <span class="lbl">A-02 全店舗ダッシュボード</span>
+  <div class="row" style="grid-template-columns:2fr 1fr 1fr 1fr"><div class="blk hd">絞り込み：ブロック／耐震区分／判定／進捗</div><div class="blk">年度</div><div class="blk">並べ替え</div><div class="blk acc">Excel出力</div></div>
+  <div class="row" style="grid-template-columns:1fr 1fr 1fr 1fr"><div class="blk">総合スコア分布</div><div class="blk">判定マトリクス（A×C）</div><div class="blk">耐震フラグ「最優先」</div><div class="blk">全体進捗</div></div>
+  <div class="row" style="grid-template-columns:1fr"><div class="blk tall">店舗一覧（30行）：店舗No／店舗名／構造・築年数／耐震区分・Is値／A・B・C・D・総合／耐震フラグ／自動判定／PM最終判定／優先順位／フェーズ／進捗率<br><span class="small">行をクリックで A-03 へ</span></div></div>
+</div><figcaption><b>全店舗ダッシュボード</b> — サマリー一覧を自動集計にしたもの。上段に絞り込み、中段に分布、下段に一覧。</figcaption></figure>
+
+<figure><div class="wf" aria-label="調査入力画面のレイアウト概略">
+  <span class="lbl">A-04 調査入力（例：1-2 耐震・建物安全性）</span>
+  <div class="row" style="grid-template-columns:1fr 3fr"><div class="blk hd">店舗No・店舗名</div><div class="blk hd">1-1 ／ <b>1-2</b> ／ 1-3 ／ 2-1 ／ … ／ 4-2　　進捗 ○％</div></div>
+  <div class="row" style="grid-template-columns:1fr 1fr 1fr 1fr"><div class="blk">絞り込み：フェーズ</div><div class="blk">担当</div><div class="blk">調査状況</div><div class="blk acc">写真を追加</div></div>
+  <div class="row" style="grid-template-columns:1fr"><div class="blk tall">1-2-01 耐震基準区分　[選択 ▾]　特記事項　情報源（推奨・上書き可）　調査状況 [未着手▾]　調査日・記入者（自動）<br>1-2-04 Is値（最小値）　[0.45]　※目安0.6以上　…<br>1-2-13 外壁の劣化状況　[南面タイル浮き…]　📷 写真 12〜15　調査状況 [完了]<br><span class="small">1行1項目。灰色＝自動計算・入力不可。行末に変更履歴</span></div></div>
+</div><figcaption><b>調査入力</b> — 雛形の1シートが1画面。上のタブでシートを移動、行は雛形の項目 No と同じ並び。</figcaption></figure>
+
+<figure><div class="wf" aria-label="スコアリング画面のレイアウト概略">
+  <span class="lbl">A-07 スコアリング</span>
+  <div class="row" style="grid-template-columns:3fr 1fr"><div class="blk tall">A1 耐震性能　[1〜5]　評価基準（5点／3点／1点の状態を表示）　根拠<br>A2 建物劣化度 … A5 災害リスク<br>B1〜B5 ／ C1〜C6（C1 は全店分布から基準を表示）／ D1〜D4</div><div class="blk tall">カテゴリ別集計<br>A 30％ ／ B 20％ ／ C 30％ ／ D 20％<br>総合スコア（100点）<br>耐震フラグ（自動）<br>自動判定（A×C）</div></div>
+  <div class="row" style="grid-template-columns:1fr 1fr 1fr"><div class="blk">PM最終判定 [S／A／B／C／保留]</div><div class="blk">判定理由・条件</div><div class="blk acc">承認して確定</div></div>
+</div><figcaption><b>スコアリング</b> — 雛形の「スコアリング」シートと同じ20軸。右に集計、下に PM 最終判定。</figcaption></figure>
+
+<figure><div class="wf" aria-label="店舗カルテ表紙のレイアウト概略">
+  <span class="lbl">A-03 店舗カルテ（表紙）</span>
+  <div class="row" style="grid-template-columns:1fr 1fr"><div class="blk">調査基本情報：店舗No／店舗名／調査期間／記入責任者／最終更新</div><div class="blk">スコアサマリー：A・B・C・D の平均点・換算点、総合スコア、自動判定、PM最終判定</div></div>
+  <div class="row" style="grid-template-columns:1fr 1fr"><div class="blk">物件概要（1-1・1-2 から自動）：所在地／構造・階数／延床／竣工・築年数／耐震区分・Is値／権利・残存契約</div><div class="blk acc">耐震アラート（1-2 から自動判定）</div></div>
+  <div class="row" style="grid-template-columns:2fr 1fr"><div class="blk">調査進捗：12シート × 進捗率、レビュー状態</div><div class="blk">総評・特記事項（PM記入）</div></div>
+</div><figcaption><b>店舗カルテ（表紙）</b> — 店舗の入口。ここから各区分の入力画面とスコアリングへ移動。</figcaption></figure>
+</div>
+</section>
+
+<section id="s5">
+<h2><span class="num">05</span>データ構造</h2>
+<p>データは「店舗 × 調査年度」を軸に、雛形の項目マスタへの回答として持ちます。項目そのものはマスタなので、雛形の改訂（v1.1）はマスタの版を上げるだけで済み、過去の回答は当時の版に紐付いたまま残ります。</p>
+<figure>
+<svg viewBox="0 0 960 300" role="img" aria-labelledby="fig2t"><title id="fig2t">主要なデータの関係：マスタ、店舗と調査年度、回答・スコア・添付</title>
+  <text x="20" y="24" class="svgtxt m">マスタ（版管理・PM のみ編集）</text>
+  <rect x="20" y="36" width="230" height="40" rx="6" class="box"/><text x="34" y="61" class="svgtxt b">調査区分（12）</text>
+  <rect x="20" y="88" width="230" height="40" rx="6" class="box"/><text x="34" y="113" class="svgtxt b">調査項目（168）</text>
+  <rect x="20" y="140" width="230" height="40" rx="6" class="box"/><text x="34" y="165" class="svgtxt b">選択肢</text>
+  <rect x="20" y="192" width="230" height="40" rx="6" class="box"/><text x="34" y="217" class="svgtxt b">評価軸（20）・評価基準・重み</text>
+  <rect x="20" y="244" width="230" height="40" rx="6" class="box"/><text x="34" y="269" class="svgtxt b">投資区分・判定ロジック</text>
+  <path d="M250 56 H290 M250 108 H290 M250 160 H290 M250 212 H290 M250 264 H290" class="ln d"/><path d="M290 56 V264" class="ln d"/>
+  <text x="380" y="24" class="svgtxt m">店舗と年度</text>
+  <rect x="380" y="36" width="200" height="40" rx="6" class="box acc"/><text x="394" y="61" class="svgtxt b">店舗（30）</text>
+  <rect x="380" y="100" width="200" height="40" rx="6" class="box acc"/><text x="394" y="125" class="svgtxt b">調査年度</text>
+  <path d="M480 76 V100" class="ln"/><path d="M475 94 L480 102 L485 94" class="ln"/>
+  <text x="380" y="176" class="svgtxt s">店舗 × 調査年度 が1つの「カルテ」</text>
+  <rect x="380" y="188" width="200" height="40" rx="6" class="box"/><text x="394" y="213" class="svgtxt b">カルテ（進捗・承認状態）</text>
+  <path d="M480 140 V188" class="ln"/><path d="M475 182 L480 190 L485 182" class="ln"/>
+  <path d="M290 160 H380" class="ln d"/>
+  <text x="640" y="24" class="svgtxt m">カルテに紐付く記録</text>
+  <rect x="640" y="36" width="300" height="40" rx="6" class="box"/><text x="654" y="61" class="svgtxt b">回答</text><text x="745" y="61" class="svgtxt s">記入内容・状況・調査日・記入者</text>
+  <rect x="640" y="88" width="300" height="40" rx="6" class="box"/><text x="654" y="113" class="svgtxt b">スコア</text><text x="745" y="113" class="svgtxt s">20軸の点数・根拠、判定、PM最終判定</text>
+  <rect x="640" y="140" width="300" height="40" rx="6" class="box"/><text x="654" y="165" class="svgtxt b">添付</text><text x="745" y="165" class="svgtxt s">写真（項目に紐付け）・受領資料</text>
+  <rect x="640" y="192" width="300" height="40" rx="6" class="box"/><text x="654" y="217" class="svgtxt b">ヒアリング</text><text x="745" y="217" class="svgtxt s">職種別の回答（生データ）</text>
+  <rect x="640" y="244" width="300" height="40" rx="6" class="box"/><text x="654" y="269" class="svgtxt b">変更履歴</text><text x="745" y="269" class="svgtxt s">誰が・いつ・何を・何から何へ</text>
+  <path d="M580 208 H600" class="ln"/><path d="M600 56 V264" class="ln"/><path d="M600 56 H640 M600 108 H640 M600 160 H640 M600 212 H640 M600 264 H640" class="ln"/>
+</svg>
+<figcaption>図2 · 主要なデータの関係。点線はマスタの参照。</figcaption>
+</figure>
+
+<h3>調査項目の内訳（雛形 v1.0 のまま）</h3>
+<div class="tbl"><table>
+<thead><tr><th>カテゴリ</th><th>調査区分</th><th class="c">項目数</th><th>主な情報源・方法（要領書 §10）</th><th>主担当（要領書 §10）</th></tr></thead>
+<tbody>
+<tr><td rowspan="3">A 建物・安全性<br><span class="small">重み 30％</span></td><td>1-1 物件基本情報</td><td class="c">19</td><td>登記・竣工図書・確認済証・契約書（資料転記）</td><td>調査スタッフ</td></tr>
+<tr><td>1-2 耐震・建物安全性</td><td class="c">20</td><td>診断報告書・修繕台帳・現地劣化調査</td><td>設計担当（一級建築士）</td></tr>
+<tr><td>1-3 災害リスク</td><td class="c">10</td><td>ハザードポータル・自治体資料・現地</td><td>調査スタッフ</td></tr>
+<tr><td rowspan="3">B 施設機能性<br><span class="small">重み 20％</span></td><td>2-1 サービス工場</td><td class="c">17</td><td>現地・設備台帳・実績データ</td><td>調査スタッフ・商圏分析（クライアント側）</td></tr>
+<tr><td>2-2 ショールーム</td><td class="c">15</td><td>現地・竣工図</td><td>調査スタッフ（クライアント側）</td></tr>
+<tr><td>2-3 従業員環境</td><td class="c">12</td><td>現地・別紙4ヒアリング</td><td>調査スタッフ（クライアント側）</td></tr>
+<tr><td rowspan="4">C 商圏・将来性<br><span class="small">重み 30％</span></td><td>3-1 人口動態</td><td class="c">26</td><td>jSTAT MAP・国勢調査・社人研推計（3km／5km／10km 圏）</td><td>商圏分析担当（クライアント側）</td></tr>
+<tr><td>3-2 自動車市場</td><td class="c">11</td><td>検査登録情報協会・クライアントデータ</td><td>商圏分析担当（クライアント側）</td></tr>
+<tr><td>3-3 競争環境・商圏重複</td><td class="c">8</td><td>地図・顧客データ・GIS</td><td>商圏分析担当（クライアント側）</td></tr>
+<tr><td>3-4 都市・地域変化</td><td class="c">8</td><td>自治体都市計画・事業者発表</td><td>調査スタッフ</td></tr>
+<tr><td rowspan="2">D 資産性・投資条件<br><span class="small">重み 20％</span></td><td>4-1 不動産条件</td><td class="c">12</td><td>財務資料・契約書・路線価・都市計画</td><td>調査スタッフ・設計担当</td></tr>
+<tr><td>4-2 建替え可能性</td><td class="c">10</td><td>図面・法規・現地・試算</td><td>設計担当</td></tr>
+<tr><th colspan="2">合計</th><th class="c">168</th><th colspan="2">うち自動計算 4 項目（築年数／残存契約期間／人口指数2040／トヨタ保有シェア）</th></tr>
+</tbody></table></div>
+<p class="small">「（クライアント側）」は要領書 §10 の主担当欄の記載に基づく分担案です。実際の分担は §12 で確認します。</p>
+</section>
+
+<section id="s6">
+<h2><span class="num">06</span>利用者と権限</h2>
+<p>要領書 §3 の体制をそのまま役割にします。権限は「どの店舗を」「どの区分を」「読めるか・書けるか」の組み合わせで、店舗と区分の割当は管理画面（A-11）で変更できます。</p>
+<div class="tbl"><table>
+<thead><tr><th>役割</th><th>想定</th><th class="c">ダッシュボード</th><th class="c">調査入力</th><th class="c">スコアリング</th><th class="c">PM最終判定</th><th class="c">マスタ・権限</th><th>閲覧範囲</th></tr></thead>
+<tbody>
+<tr><td><b>PM</b></td><td>エイトデザイン</td><td class="c"><span class="dot"></span></td><td class="c"><span class="dot"></span></td><td class="c"><span class="dot"></span></td><td class="c"><span class="dot"></span></td><td class="c"><span class="dot"></span></td><td>全店舗・全区分</td></tr>
+<tr><td><b>設計担当</b></td><td>一級建築士</td><td class="c"><span class="dot"></span></td><td class="c"><span class="dot"></span></td><td class="c"><span class="dot"></span> 原案</td><td class="c"><span class="dot no"></span></td><td class="c"><span class="dot no"></span></td><td>全店舗。1-2・4-2 のレビュー必須</td></tr>
+<tr><td><b>調査スタッフ</b></td><td>2〜3名</td><td class="c"><span class="dot half"></span> 進捗のみ</td><td class="c"><span class="dot"></span></td><td class="c"><span class="dot no"></span></td><td class="c"><span class="dot no"></span></td><td class="c"><span class="dot no"></span></td><td>担当店舗</td></tr>
+<tr><td><b>商圏分析担当</b></td><td>エイト or クライアント側</td><td class="c"><span class="dot half"></span></td><td class="c"><span class="dot"></span> 3-1〜3-3</td><td class="c"><span class="dot half"></span> C 系の原案</td><td class="c"><span class="dot no"></span></td><td class="c"><span class="dot no"></span></td><td>全店舗の 3-1〜3-3</td></tr>
+<tr><td><b>クライアント側 入力担当</b></td><td>店舗・本部の担当者</td><td class="c"><span class="dot half"></span> 自店舗の進捗</td><td class="c"><span class="dot"></span> 割り当てた区分</td><td class="c"><span class="dot no"></span></td><td class="c"><span class="dot no"></span></td><td class="c"><span class="dot no"></span></td><td>担当店舗の割り当て区分（例：2-1〜2-3）</td></tr>
+<tr><td><b>クライアント側 閲覧者</b></td><td>経営層・判定会議メンバー</td><td class="c"><span class="dot"></span></td><td class="c"><span class="dot half"></span> 閲覧のみ</td><td class="c"><span class="dot half"></span> 閲覧のみ</td><td class="c"><span class="dot no"></span></td><td class="c"><span class="dot no"></span></td><td>全店舗（再編所見を含むかは設定）</td></tr>
+<tr><td><b>外部委託</b></td><td>必要時のみ</td><td class="c"><span class="dot no"></span></td><td class="c"><span class="dot half"></span> 該当区分</td><td class="c"><span class="dot no"></span></td><td class="c"><span class="dot no"></span></td><td class="c"><span class="dot no"></span></td><td>担当店舗の該当区分（例：1-2 のみ）</td></tr>
+</tbody></table></div>
+<p class="small"><span class="dot"></span> 可　<span class="dot half"></span> 一部・閲覧のみ　<span class="dot no"></span> 不可</p>
+<div class="note"><p><strong>守秘に関わる項目の扱い。</strong>要領書 §9「経営・人事・再編に関わる情報は判定会議メンバー以外に共有しない」に合わせ、<strong>3-3-08 再編検討上の位置づけ、PM最終判定の判定理由、総評</strong>は「判定会議メンバー」フラグを持つ利用者にだけ表示する設定を既定にします。ヒアリングの匿名化（F-05）も同じ考え方です。どの項目を制限対象にするかは §12 で確認します。</p></div>
+</section>
+
+<section id="s7">
+<h2><span class="num">07</span>調査フェーズとの対応</h2>
+<p>要領書の5フェーズはそのまま。各フェーズでアプリが受け持つことを対応させます。</p>
+<div class="tbl"><table>
+<thead><tr><th>フェーズ</th><th>要領書での内容</th><th>アプリが受け持つこと</th></tr></thead>
+<tbody>
+<tr><td><b>F1</b> 事前資料収集</td><td>別紙2で依頼 → 受領 → 02_受領資料へ格納 → カルテへ転記</td><td>受領資料20点の受領状況を店舗×資料で管理（A-05）。優先度A未受領の一覧。受領した PDF を店舗に添付。転記は 1-1／4-1 の入力画面へ</td></tr>
+<tr><td><b>F2</b> 机上調査</td><td>ハザード・都市計画・商圏・市場の Web／データ調査。同一指標は同一出典・同一時点</td><td>1-3・3-1〜3-4・4-1 の入力。情報源欄に推奨出典を既定表示。商圏レポート PDF・画面キャプチャは項目に添付。<strong>「同一出典・同一時点」を商圏分析担当が管理表で固定していた運用は、マスタの情報源欄と年度で代替</strong></td></tr>
+<tr><td><b>F3</b> 現地調査</td><td>1店舗1日・2名。劣化・施設・環境の現地確認と撮影。写真整理とカルテ記入は当日中</td><td>タブレット・スマートフォンから現地入力。撮った写真をその項目に添付（写真番号自動）。1-2・2-1〜2-3 の入力。当日中に調査状況を更新すると表紙と全店ダッシュボードの進捗に反映</td></tr>
+<tr><td><b>F4</b> ヒアリング</td><td>別紙4の質問票。店舗責任者45分・営業／サービス各20分。生データを記録し、カルテに要点転記</td><td>質問票フォーム（A-06）に記録。要点は 2-3-08〜11 へ転記。匿名化フラグ</td></tr>
+<tr><td><b>F5</b> 分析・評価</td><td>総合所見 → スコアリング原案 → 相対評価軸の基準確定 → PM レビュー → ブロック別判定会議</td><td>スコアリング（A-07）。C1 などの相対評価は全店分布から自動算出。耐震フラグ「最優先」を全店ダッシュボードで即時表示。判定会議資料を出力（A-09）</td></tr>
+<tr><td><b>週次定例</b></td><td>カルテ表紙の進捗率・課題・資料受領状況・スケジュールを確認</td><td>全店ダッシュボードの進捗・レビュー状態・未受領資料をそのまま定例の画面に</td></tr>
+</tbody></table></div>
+<p>要領書は<strong>パイロット2店舗で要領・雛形を検証してから全店展開</strong>する手順を必須としています。アプリも同じ順で、パイロット2店舗を「アプリで」通し、雛形 v1.1 と同時にマスタとアプリを改訂してから全店へ展開します（§11）。</p>
+</section>
+
+<section id="s8" class="band">
+<h2><span class="num">08</span>技術構成</h2>
+<p>弊社が他案件で本番運用している構成を採ります。特殊な部品を使わず、保守と引き継ぎがしやすいこと、月額の固定費が読めることを優先しています。</p>
+<figure>
+<svg viewBox="0 0 960 250" role="img" aria-labelledby="fig3t"><title id="fig3t">技術構成：ブラウザ、Webアプリ、データベース・認証・ファイル保管</title>
+  <rect x="20" y="40" width="220" height="150" rx="8" fill="none" style="stroke:var(--color-band-rule)" stroke-width="1.2"/>
+  <text x="34" y="30" class="svgtxt m" style="fill:var(--color-band-accent)" letter-spacing=".06em">利用者</text>
+  <text x="34" y="72" class="svgtxt b" style="fill:var(--color-band-ink)">ブラウザ</text>
+  <text x="34" y="96" class="svgtxt" style="fill:var(--color-band-ink-2)">PC（事務所・判定会議）</text>
+  <text x="34" y="116" class="svgtxt" style="fill:var(--color-band-ink-2)">タブレット・スマートフォン（現地）</text>
+  <text x="34" y="150" class="svgtxt s" style="fill:var(--color-band-muted)">インストール不要・URL とログインのみ</text>
+  <path d="M240 115 H300" style="stroke:var(--color-band-ink-2)" stroke-width="1.2"/><path d="M294 110 L302 115 L294 120" style="stroke:var(--color-band-ink-2)" stroke-width="1.2" fill="none"/>
+  <text x="248" y="105" class="svgtxt s" style="fill:var(--color-band-muted)">HTTPS</text>
+  <rect x="302" y="40" width="300" height="150" rx="8" stroke-width="1.2" style="fill:var(--color-band-surface);stroke:var(--color-band-accent)"/>
+  <text x="316" y="30" class="svgtxt m" style="fill:var(--color-band-accent)" letter-spacing=".06em">Web アプリ</text>
+  <text x="316" y="72" class="svgtxt b" style="fill:var(--color-band-ink)">Next.js（TypeScript）</text>
+  <text x="316" y="96" class="svgtxt" style="fill:var(--color-band-ink-2)">画面・入力チェック・集計・判定ロジック</text>
+  <text x="316" y="116" class="svgtxt" style="fill:var(--color-band-ink-2)">PDF／Excel 出力</text>
+  <text x="316" y="150" class="svgtxt s" style="fill:var(--color-band-muted)">ホスティング：Vercel（自動デプロイ・スケール）</text>
+  <path d="M602 115 H662" style="stroke:var(--color-band-ink-2)" stroke-width="1.2"/><path d="M656 110 L664 115 L656 120" style="stroke:var(--color-band-ink-2)" stroke-width="1.2" fill="none"/>
+  <rect x="664" y="40" width="276" height="150" rx="8" stroke-width="1.2" style="fill:var(--color-band-surface);stroke:var(--color-band-rule)"/>
+  <text x="678" y="30" class="svgtxt m" style="fill:var(--color-band-accent)" letter-spacing=".06em">データ基盤</text>
+  <text x="678" y="72" class="svgtxt b" style="fill:var(--color-band-ink)">Supabase（PostgreSQL）</text>
+  <text x="678" y="96" class="svgtxt" style="fill:var(--color-band-ink-2)">データベース（行単位の権限制御）</text>
+  <text x="678" y="116" class="svgtxt" style="fill:var(--color-band-ink-2)">認証（招待制ログイン）</text>
+  <text x="678" y="136" class="svgtxt" style="fill:var(--color-band-ink-2)">ファイル保管（写真・受領資料 PDF）</text>
+  <text x="678" y="164" class="svgtxt s" style="fill:var(--color-band-muted)">日次バックアップ／国内リージョンを想定</text>
+  <text x="20" y="228" class="svgtxt" style="fill:var(--color-band-ink-2)">外部の GIS・統計サイト（jSTAT MAP など）とは連携せず、結果を入力・添付する。クライアント実績データは CSV 取込（オプション）。</text>
+</svg>
+<figcaption>図3 · 技術構成。3層とも管理型のクラウドサービスを使い、自前のサーバー管理を持たない。</figcaption>
+</figure>
+<div class="kv">
+  <div><span class="k">アプリ</span><b>Next.js ＋ TypeScript</b><p>画面と業務ロジック。型で 168 項目・20 軸の定義を固定し、マスタとの食い違いをビルド時に検出する</p></div>
+  <div><span class="k">データ</span><b>Supabase（PostgreSQL）</b><p>店舗・年度・回答・スコアを関係データベースで管理。権限は行単位（店舗×区分）でデータベース側にも掛け、画面の実装漏れで漏れない構造にする</p></div>
+  <div><span class="k">ファイル</span><b>Supabase Storage</b><p>写真・受領資料は項目・店舗に紐付けて保管。アクセスは同じ権限で制御</p></div>
+  <div><span class="k">認証</span><b>メール＋パスワード（招待制）</b><p>管理者が招待した人だけがログインできる。多要素認証は管理者・PM に推奨。<strong>認証・権限の設計は着手前に貴社と確認のうえ確定します</strong></p></div>
+  <div><span class="k">ホスティング</span><b>Vercel</b><p>変更を安全に反映できる仕組み（プレビュー → 本番）。利用者数の増減に手作業なく追従</p></div>
+  <div><span class="k">出力</span><b>PDF／Excel 生成</b><p>雛形と同じ列構成の Excel、判定会議用 PDF。既存の様式・フォルダ命名に合わせる</p></div>
+</div>
+<h3>この構成を選ぶ理由</h3>
+<ul>
+  <li><strong>実績</strong>：弊社が本番運用中の Web アプリと同じ構成で、引き継ぎ資料・運用手順の雛形がある</li>
+  <li><strong>保守のしやすさ</strong>：サーバー OS やミドルウェアの面倒を見る作業がなく、保守の中身を「アプリの改善」に寄せられる</li>
+  <li><strong>費用の見通し</strong>：クラウド利用料は利用規模に応じた月額で、30店舗・数十名の利用では小さい</li>
+  <li><strong>持ち出せる</strong>：データは標準的な PostgreSQL と通常のファイルなので、契約終了時に全件を引き渡せる（§09）</li>
+</ul>
+</section>
+
+<section id="s9">
+<h2><span class="num">09</span>セキュリティ・データの扱い</h2>
+<div class="tbl"><table>
+<thead><tr><th style="width:8em">観点</th><th>方針</th></tr></thead>
+<tbody>
+<tr><td>アクセス制御</td><td>招待制ログイン。役割 × 店舗 × 区分の権限（§06）を画面とデータベースの両方で適用。退職・異動時は管理者が即時停止</td></tr>
+<tr><td>通信・保管</td><td>通信は暗号化（HTTPS）。データベース・ファイルは事業者側で暗号化保管。日次バックアップ</td></tr>
+<tr><td>記録</td><td>ログイン、閲覧（守秘対象項目）、変更を監査ログとして保存。項目単位の変更履歴で「誰が・いつ・何から何へ」を追える</td></tr>
+<tr><td>守秘対象の項目</td><td>再編所見・判定理由・総評・ヒアリング原文は判定会議メンバーのみ閲覧（既定）。設定で変更可</td></tr>
+<tr><td>写真</td><td>お客様・従業員・車両ナンバーの写り込みは、社外資料へ出力するときにマスキングする運用（要領書 §9）。アプリはマスキング済み写真の差し替えを支援</td></tr>
+<tr><td>データの所有</td><td>入力されたデータ・写真・資料は貴社の資産。契約終了時は全件（データベース・ファイル・Excel 出力）を引き渡し、弊社側の複製は削除</td></tr>
+<tr><td>データの所在</td><td>国内リージョンの利用を想定（契約時に確認）。利用するクラウド事業者と契約名義は §12 で確認</td></tr>
+<tr><td>障害時</td><td>「止める・戻す・データを戻す」の手順書をリリース前に用意し、復旧目標を保守契約に明記</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="s10">
+<h2><span class="num">10</span>保守・運用</h2>
+<p>アプリを納めて終わりではなく、調査期間中と、その後の年次更新まで含めて運用します。内容は3層に分け、それぞれ範囲を明確にします（費用はお見積りで）。</p>
+<div class="kv">
+  <div><span class="k">層 1</span><b>サーバー管理</b><p>クラウド利用料の管理、監視、日次バックアップの確認、部品の更新（脆弱性対応）、障害時の一次対応と復旧</p></div>
+  <div><span class="k">層 2</span><b>アプリ保守</b><p>不具合修正、問い合わせ対応、マスタ改訂（v1.1 など）の適用支援、小規模な改修。月あたりの対応時間の上限を決め、超過分は別途</p></div>
+  <div><span class="k">層 3</span><b>入力業務支援</b><p>受領資料からの転記代行、写真整理、年次更新時の入力代行と督促、判定会議資料の作成補助。調査期間中と年次更新時にスポットで</p></div>
+</div>
+<h3>年次・定期更新の運用（案）</h3>
+<ol>
+  <li>年度の切り替え時に、前年の回答・スコアを引き継いだ新しい調査年度を作成する（A-12）</li>
+  <li>「更新が必要な項目」（修繕履歴・設備の年式・実績データ・商圏指標など）を対象に、担当者へ更新依頼を出す。変化しない項目（竣工年月・構造など）は再入力しない</li>
+  <li>更新後にスコアリングを見直し、前年との差分（点数の変化・判定の変化）を全店ダッシュボードで確認する</li>
+  <li>投資計画の進捗（実施フェーズ・概算投資額）は年度をまたいで追跡し、実施済みの店舗はその旨を記録する</li>
+</ol>
+<p class="small">更新の頻度（年1回か、修繕のたびか）と対象項目は §12 で確認します。</p>
+</section>
+
+<section id="s11">
+<h2><span class="num">11</span>導入ステップ</h2>
+<p>要領書の標準スケジュール（パイロット2店舗 → 全店ウェーブ → 判定会議）に、アプリの構築を重ねます。<strong>パイロットまでに最初の版を使える状態にする</strong>ことが要点です。期間は体制と要件の確定後にお見積りと合わせて提示します。</p>
+<ol class="steps">
+  <li><b>要件の確定</b><p>本資料の §12 を打ち合わせで確定。項目マスタ（雛形 v1.0）の取り込み、権限の割当方針、出力様式、認証方式の承認</p></li>
+  <li><b>第1版の構築（縦に1本通す）</b><p>ログイン → 店舗カルテ → 調査入力（12区分）→ 写真添付 → スコアリング → 全店ダッシュボード → Excel 出力を、まず一通り動く形で。ここで最も難しい部分（権限・出力・現地入力）を先に検証</p></li>
+  <li><b>パイロット2店舗をアプリで実施</b><p>要領書の第3〜5週にあたる。現地入力・写真・ヒアリング・スコアリングまで通し、使い勝手と雛形の改訂点を集める</p></li>
+  <li><b>v1.1 反映</b><p>雛形・要領書の v1.1 改訂と同時に、マスタとアプリを改訂。全店展開に必要な機能（レビュー・年度・マスタ管理の画面）を揃える</p></li>
+  <li><b>全店展開</b><p>現地調査ウェーブ（週2〜3店舗）と商圏分析の一括実施に並走。週次定例は全店ダッシュボードで</p></li>
+  <li><b>スコアリング・判定会議</b><p>相対評価の基準確定、ブロック別判定会議資料の出力、PM最終判定の記録。サマリー確定と中長期実行計画への引き渡し</p></li>
+  <li><b>年次更新モードへ</b><p>調査完了後は年度管理と保守・入力支援の体制に移行</p></li>
+</ol>
+</section>
+
+<section id="s12">
+<h2><span class="num">12</span>ご確認したい事項</h2>
+<p>回答によって構成・工数が変わるものを先に挙げます。打ち合わせで順に確定させてください。</p>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>確認したいこと</th><th>関わる箇所</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>利用者の人数と内訳</strong>（エイト側・貴社側の入力担当・閲覧者）。貴社側の入力担当が店舗ごとにいるのか、本部でまとめるのか</td><td>§06 権限、アカウント数</td></tr>
+<tr><td>2</td><td><strong>貴社側で入力する区分の範囲</strong>。要領書 §10 では 2-1〜2-3・3-1〜3-3 が貴社側の主担当になっているが、この分担でよいか</td><td>§05・§06</td></tr>
+<tr><td>3</td><td><strong>守秘対象とする項目</strong>（再編所見・判定理由・総評・ヒアリング原文）と、判定会議メンバーの範囲</td><td>§06・§09</td></tr>
+<tr><td>4</td><td><strong>Excel 出力の要否と様式</strong>。雛形と同じ列構成で出せばよいか、既存の社内様式があるか</td><td>F-09</td></tr>
+<tr><td>5</td><td><strong>実績データの取り込み</strong>（ストール稼働率・入庫台数・UIO・新車販売実績）。CSV で受け取り、店舗別に取り込む機能を含めるか、手入力でよいか</td><td>F-03 オプション</td></tr>
+<tr><td>6</td><td><strong>写真の枚数の見込み</strong>（1店舗あたり）と保管期間。ファイル保管の容量に関わる</td><td>F-04・§08</td></tr>
+<tr><td>7</td><td><strong>年次更新の頻度と対象項目</strong>。年1回の一斉更新か、修繕・改装のたびに随時か</td><td>F-10・§10</td></tr>
+<tr><td>8</td><td><strong>クラウドの契約名義</strong>（貴社名義か弊社名義か）と、データの所在（国内リージョン）の要件</td><td>§08・§09</td></tr>
+<tr><td>9</td><td><strong>認証方式</strong>。メール＋パスワード（招待制）でよいか、貴社の既存アカウント（Google Workspace／Microsoft 365 など）でのログインが必要か</td><td>§08</td></tr>
+<tr><td>10</td><td><strong>地図表示の要否</strong>。全店ダッシュボードで店舗位置と商圏の重なりを地図で見たいか（3-3-06 商圏重複の可視化）</td><td>F-01 オプション</td></tr>
+<tr><td>11</td><td><strong>保守の範囲</strong>。層1〜3のどこまでを継続契約に含めるか。入力業務支援の想定量</td><td>§10</td></tr>
+<tr><td>12</td><td><strong>スケジュールの起点</strong>。キックオフとパイロット2店舗の時期</td><td>§11</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="s13">
+<h2><span class="num">A</span>付録</h2>
+<h3>A-1 雛形（Excel）とアプリの対応表</h3>
+<div class="tbl"><table>
+<thead><tr><th>雛形・要領書</th><th>アプリでの受け皿</th></tr></thead>
+<tbody>
+<tr><td>使い方シート</td><td>画面内ヘルプ（セル色の意味 → 入力可否の表示、調査状況の使い分け）</td></tr>
+<tr><td>表紙シート</td><td>A-03 店舗カルテ（表紙）</td></tr>
+<tr><td>1-1〜4-2 の12シート</td><td>A-04 調査入力（区分タブ）</td></tr>
+<tr><td>スコアリング／評価基準シート</td><td>A-07 スコアリング（評価基準は入力欄の横に表示）</td></tr>
+<tr><td>選択肢マスタシート</td><td>A-10 マスタ管理（版付き）</td></tr>
+<tr><td>全店舗サマリー一覧（xlsx）</td><td>A-02 全店舗ダッシュボード＋Excel 出力</td></tr>
+<tr><td>別紙1 項目別調査要領</td><td>A-04 の絞り込み（フェーズ／担当）と項目ごとの確認ポイント表示</td></tr>
+<tr><td>別紙2 依頼資料リスト</td><td>A-05 受領資料の受領状況管理</td></tr>
+<tr><td>別紙3 現地調査</td><td>A-04 のモバイル入力＋写真添付（タイムテーブル・持ち物はそのまま紙・PDF）</td></tr>
+<tr><td>別紙4 ヒアリング質問票</td><td>A-06 ヒアリング</td></tr>
+<tr><td>リンク集</td><td>A-04 の情報源欄からリンク（外部サイトは連携せず参照のみ）</td></tr>
+<tr><td>要領書 §7 品質管理・§8 格納・§9 守秘・§11 版管理</td><td>A-08 レビュー、A-09 出力の命名、§06 権限、A-10 版管理</td></tr>
+</tbody></table></div>
+<h3>A-2 プロトタイプ v0.1</h3>
+<p>1店舗分をブラウザ内で試せる試作を同梱しています：<a href="prototype/">店舗カルテ プロトタイプ v0.1 を開く</a>。サーバー保存はなく、画面と計算の流れ（進捗率・スコア集計・自動判定）を確かめるためのものです。本システムはこれを 30 店舗・複数利用者・権限・履歴付きに拡張したものと考えてください。</p>
+<h3>A-3 用語</h3>
+<ul>
+  <li><strong>カルテ</strong> — 店舗 × 調査年度の記録一式（168項目の回答・スコア・添付・承認状態）</li>
+  <li><strong>マスタ</strong> — 調査区分・項目・選択肢・評価軸・評価基準・重み・判定ロジックの定義。版番号で管理</li>
+  <li><strong>耐震フラグ</strong> — 1-2 の入力から自動判定する「最優先」表示。旧耐震かつ未診断／未補強など</li>
+  <li><strong>自動判定</strong> — A（建物・安全性）と C（商圏・将来性）の平均点による S／A／B／C の参考判定。最終判定は PM</li>
+</ul>
+</section>
+
+<footer>
+  <span><b>店舗カルテシステム システム案</b> v0.1 ドラフト</span>
+  <span>2026-08-19</span>
+  <span>エイトデザイン株式会社</span>
+  <span>本資料は打ち合わせ用の案であり、記載内容は確定前です</span>
+</footer>
+</main>
+</div>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.rail nav a'));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
+  if(!('IntersectionObserver' in window))return;
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ cur=e.target; } });
+    if(!cur)return;
+    links.forEach(function(a,i){ a.classList.toggle('on', secs[i]===cur); });
+  },{rootMargin:'-20% 0px -70% 0px',threshold:0});
+  secs.forEach(function(s){ if(s) io.observe(s); });
+})();
+</script>
+</body>
+</html>

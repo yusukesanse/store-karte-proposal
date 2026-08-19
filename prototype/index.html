@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>店舗カルテ プロトタイプ v0.1｜エイトデザイン</title>
+<style>
+:root{
+  color-scheme: light;
+  --surface:#fcfcfb; --page:#f4f4f1; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --navy:#1f3864; --navy2:#305496;
+  --c1:#C55A11; --c2:#2E75B6; --c3:#548235; --c4:#7030A0;
+  --seq:#2a78d6; --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+  --input-bg:#fffdf5; --input-bd:#d8d5c9; --card:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --surface:#1a1a19; --page:#0d0d0d; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --navy:#8fb0dd; --navy2:#a9c3e8;
+    --c1:#D4712B; --c2:#4A8FD4; --c3:#6FA24A; --c4:#9A5BC8;
+    --seq:#3987e5; --input-bg:#22221f; --input-bd:#44443f; --card:#232322;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif;
+  font-size:15px;line-height:1.55}
+.head{position:sticky;top:0;z-index:30;background:var(--navy);color:#fff;padding:10px 16px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head .ttl{font-weight:700;font-size:16px}
+.head .proto{font-size:10px;background:rgba(255,255,255,.18);padding:2px 8px;border-radius:99px;letter-spacing:.08em}
+.head .store{font-size:13px;opacity:.92}
+.head .stats{margin-left:auto;display:flex;gap:14px;font-size:12px;align-items:center}
+.head .stats b{font-size:16px}
+.tabs{position:sticky;top:46px;z-index:29;display:flex;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto}
+.tabs button{flex:1;min-width:92px;padding:11px 8px;border:0;background:none;color:var(--ink2);
+  font-size:13.5px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;font-family:inherit}
+.tabs button.on{color:var(--navy2);border-bottom-color:var(--navy2)}
+main{max-width:1100px;margin:0 auto;padding:16px 14px 80px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.card h3{margin:0 0 10px;font-size:14px;color:var(--navy2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+label.f{display:block;font-size:11.5px;color:var(--muted);margin-bottom:3px}
+input[type=text],input[type=date],select,textarea{width:100%;padding:9px 10px;border:1px solid var(--input-bd);
+  border-radius:8px;background:var(--input-bg);color:var(--ink);font-size:16px;font-family:inherit}
+textarea{resize:vertical;min-height:56px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--navy2);outline-offset:0;border-color:transparent}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.tile{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.tile .k{font-size:11.5px;color:var(--muted)}
+.tile .v{font-size:28px;font-weight:700;line-height:1.2;margin-top:2px}
+.tile .s{font-size:11px;color:var(--ink2)}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:700;color:#fff}
+.b-S{background:var(--seq)} .b-A{background:var(--good)} .b-B{background:var(--warn);color:#3a2c00} .b-C{background:var(--crit)} .b-N{background:var(--muted)}
+.alert{border-radius:12px;padding:12px 16px;margin-bottom:14px;font-weight:700;display:flex;gap:10px;align-items:center;border:1px solid var(--border);background:var(--card);color:var(--ink2)}
+.alert.crit{background:var(--crit);color:#fff;border:0}
+.alert.warn{background:var(--serious);color:#fff;border:0}
+.alert.ok{border-left:6px solid var(--good)}
+.alert .ic{font-size:18px}
+.pbar{height:8px;background:var(--grid);border-radius:4px;overflow:hidden;flex:1}
+.pbar i{display:block;height:100%;background:var(--seq);border-radius:4px;transition:width .25s}
+.prow{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12.5px;cursor:pointer}
+.prow .nm{width:11em;color:var(--ink2);display:flex;gap:6px;align-items:center}
+.prow .pc{width:3.2em;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink2)}
+.dot{width:8px;height:8px;border-radius:2px;flex:none}
+.cat0{background:var(--c1)}.cat1{background:var(--c2)}.cat2{background:var(--c3)}.cat3{background:var(--c4)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+.chip{border:1px solid var(--input-bd);background:var(--card);border-radius:99px;padding:7px 13px;font-size:12.5px;
+  cursor:pointer;color:var(--ink2);font-weight:600;display:flex;gap:6px;align-items:center;font-family:inherit}
+.chip.on{border-color:var(--navy2);color:var(--navy2);box-shadow:inset 0 0 0 1px var(--navy2)}
+.catlbl{font-size:11px;color:var(--muted);margin-top:10px;font-weight:700}
+.item{border-top:1px solid var(--grid);padding:13px 0}
+.item:first-child{border-top:0}
+.item .top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.item .no{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.item .lb{font-weight:700;font-size:14px}
+.item .fmt{font-size:11.5px;color:var(--muted)}
+.item .src{font-size:11px;color:var(--muted);margin-top:2px}
+.irow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.irow3{display:grid;grid-template-columns:110px 1fr 1fr;gap:8px;margin-top:8px}
+@media(max-width:640px){.irow{grid-template-columns:1fr}.irow3{grid-template-columns:1fr 1fr}}
+.auto-v{background:var(--grid);border-radius:8px;padding:9px 10px;font-size:15px;color:var(--ink2)}
+select.st{font-size:13px;font-weight:700;padding:7px 8px}
+.st-未着手{color:var(--muted)} .st-調査中{color:var(--c2)} .st-確認待ち{color:#b8860b} .st-完了{color:var(--good)} .st-対象外{color:var(--muted)}
+.shead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.shead h2{font-size:16px;margin:0;color:var(--navy2)}
+.snav{display:flex;gap:8px;margin:14px 0 0}
+.snav button{flex:1;padding:11px;border:1px solid var(--input-bd);background:var(--card);border-radius:9px;font-size:13.5px;cursor:pointer;color:var(--ink2);font-family:inherit;font-weight:600}
+.ax{border-top:1px solid var(--grid);padding:12px 0}
+.ax .nm{font-weight:700;font-size:14px}
+.ax .pt{font-size:11.5px;color:var(--muted)}
+.rate{display:flex;gap:6px;margin-top:8px}
+.rate button{width:44px;height:40px;border:1px solid var(--input-bd);background:var(--input-bg);border-radius:8px;
+  font-size:15px;font-weight:700;color:var(--ink2);cursor:pointer;font-family:inherit}
+.rate button.on{background:var(--navy2);border-color:var(--navy2);color:#fff}
+details.cr{margin-top:6px;font-size:11.5px;color:var(--ink2)}
+details.cr summary{cursor:pointer;color:var(--muted)}
+details.cr .cg{display:grid;grid-template-columns:2.2em 1fr;gap:2px 8px;margin-top:4px}
+.wrow{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.wrow>div{flex:1;min-width:110px}
+.wsum{font-size:12px;font-weight:700}
+.wsum.ng{color:var(--crit)}
+.matrix{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px}
+.matrix td,.matrix th{border:1px solid var(--grid);padding:6px;text-align:center}
+.matrix th{background:var(--page);color:var(--ink2);font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:11px 16px;border-radius:9px;border:1px solid var(--input-bd);
+  background:var(--card);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+@media(max-width:640px){.head{position:static}.tabs{top:0}}
+.btn.pri{background:var(--navy2);border-color:var(--navy2);color:#fff}
+.btn.danger{color:var(--crit);border-color:var(--crit)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.note{font-size:12px;color:var(--ink2)}
+.ovgrid{display:grid;grid-template-columns:8em 1fr;gap:4px 10px;font-size:12.5px}
+.ovgrid .k{color:var(--muted)}
+.radar-wrap{display:flex;justify-content:center}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;
+  padding:6px 9px;border-radius:7px;opacity:0;transition:opacity .12s;z-index:99;max-width:240px}
+.savebar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);
+  padding:8px 14px;display:flex;gap:10px;align-items:center;z-index:28;font-size:12px;color:var(--muted)}
+.savebar .sp{flex:1}
+footer{display:none}
+@media print{
+  .head,.tabs,.savebar,.snav{display:none!important}
+  body{background:#fff}
+  main{max-width:none;padding:0}
+  .card{break-inside:avoid;border-color:#ccc}
+}
+</style>
+</head>
+<body data-palette="#C55A11,#2E75B6,#548235,#7030A0">
+<header class="head">
+  <span class="ttl">店舗カルテ</span><span class="proto">PROTOTYPE v0.1</span>
+  <span class="store" id="hStore">未設定</span>
+  <div class="stats">
+    <span>進捗 <b id="hProg">0%</b></span>
+    <span>総合 <b id="hScore">−</b></span>
+    <span id="hBadge"></span>
+  </div>
+</header>
+<nav class="tabs" id="tabs">
+  <button data-v="dash" class="on">ダッシュボード</button>
+  <button data-v="input">調査入力</button>
+  <button data-v="score">スコアリング</button>
+  <button data-v="data">データ・使い方</button>
+</nav>
+<main id="view"></main>
+<div class="savebar"><span id="dirty">未保存の変更はありません</span><span class="sp"></span>
+  <button class="btn" id="btnDemo2">デモデータ</button>
+  <button class="btn pri" id="btnSave2">JSON保存</button></div>
+<div id="tip"></div>
+<input type="file" id="file" accept=".json" hidden>
+<script id="model" type="application/json">{"sheets": [{"id": "1-1", "title": "1-1　物件基本情報", "cat": 0, "short": "物件基本", "items": [{"no": "1-1-01", "label": "所在地", "fmt": "住所（登記上・住居表示）", "source": "登記事項証明書", "method": "資料転記", "kind": "i"}, {"no": "1-1-02", "label": "敷地面積", "fmt": "㎡", "source": "登記事項証明書・測量図", "method": "資料転記", "kind": "i"}, {"no": "1-1-03", "label": "延床面積", "fmt": "㎡", "source": "竣工図・登記事項証明書", "method": "資料転記", "kind": "i"}, {"no": "1-1-04", "label": "構造", "fmt": "選択", "source": "確認済証・竣工図", "method": "資料転記", "kind": "i", "dv": "struct"}, {"no": "1-1-05", "label": "階数", "fmt": "例：地上2階・地下なし", "source": "竣工図", "method": "資料転記", "kind": "i"}, {"no": "1-1-06", "label": "竣工年月", "fmt": "例：1985年3月", "source": "検査済証・竣工図", "method": "資料転記", "kind": "i"}, {"no": "1-1-07", "label": "竣工年（西暦）", "fmt": "数値　例：1985", "source": "同上", "method": "資料転記", "kind": "i"}, {"no": "1-1-08", "label": "築年数", "fmt": "年（自動計算）", "source": "ー", "method": "自動計算", "kind": "a", "auto": "age"}, {"no": "1-1-09", "label": "建築確認申請年月（確認済証交付日）", "fmt": "例：1984年10月　※新旧耐震判定の基礎", "source": "確認済証", "method": "資料転記", "kind": "i"}, {"no": "1-1-10", "label": "検査済証の有無", "fmt": "選択", "source": "検査済証", "method": "資料確認", "kind": "i", "dv": "yesno"}, {"no": "1-1-11", "label": "増築・改築履歴", "fmt": "年・内容を列記", "source": "確認申請履歴・竣工図", "method": "資料転記＋ヒアリング", "kind": "i"}, {"no": "1-1-12", "label": "土地の権利形態", "fmt": "選択", "source": "登記事項証明書・契約書", "method": "資料転記", "kind": "i", "dv": "tochi"}, {"no": "1-1-13", "label": "建物の権利形態", "fmt": "選択", "source": "登記事項証明書・契約書", "method": "資料転記", "kind": "i", "dv": "tatemono"}, {"no": "1-1-14", "label": "土地所有者", "fmt": "名称", "source": "登記事項証明書", "method": "資料転記", "kind": "i"}, {"no": "1-1-15", "label": "建物所有者", "fmt": "名称", "source": "登記事項証明書", "method": "資料転記", "kind": "i"}, {"no": "1-1-16", "label": "賃貸借契約期間", "fmt": "例：2010/4〜2030/3　※賃借の場合", "source": "賃貸借契約書", "method": "資料転記", "kind": "i"}, {"no": "1-1-17", "label": "契約満了年（西暦）", "fmt": "数値　例：2030　※賃借の場合", "source": "賃貸借契約書", "method": "資料転記", "kind": "i"}, {"no": "1-1-18", "label": "残存契約期間", "fmt": "年（自動計算）", "source": "ー", "method": "自動計算", "kind": "a", "auto": "remain"}, {"no": "1-1-19", "label": "図面・竣工図書の保管状況", "fmt": "選択", "source": "本社・現地確認", "method": "資料確認", "kind": "i", "dv": "tosho"}]}, {"id": "1-2", "title": "1-2　耐震・建物安全性", "cat": 0, "short": "耐震建物", "items": [{"no": "1-2-01", "label": "耐震基準区分", "fmt": "選択　※1981年6月以降の建築確認＝新耐震", "source": "確認済証（申請年月から判定）", "method": "資料判定", "kind": "i", "dv": "taishin"}, {"no": "1-2-02", "label": "耐震診断の実施有無", "fmt": "選択", "source": "耐震診断報告書", "method": "資料確認", "kind": "i", "dv": "shindan"}, {"no": "1-2-03", "label": "耐震診断の実施年・診断機関", "fmt": "例：2015年・○○建築士事務所", "source": "耐震診断報告書", "method": "資料転記", "kind": "i"}, {"no": "1-2-04", "label": "Is値（最小値）", "fmt": "数値　例：0.45　※目安0.6以上", "source": "耐震診断報告書", "method": "資料転記", "kind": "i"}, {"no": "1-2-05", "label": "CTU・SD値／q値（S造）", "fmt": "数値", "source": "耐震診断報告書", "method": "資料転記", "kind": "i"}, {"no": "1-2-06", "label": "耐震補強の実施有無", "fmt": "選択", "source": "改修工事記録", "method": "資料確認", "kind": "i", "dv": "hokyo"}, {"no": "1-2-07", "label": "補強実施年度・内容", "fmt": "例：2018年・鉄骨ブレース増設", "source": "改修工事記録", "method": "資料転記", "kind": "i"}, {"no": "1-2-08", "label": "構造上の懸念事項", "fmt": "不同沈下・ひび割れ・変形など", "source": "現地調査", "method": "現地目視（一級建築士）", "kind": "i"}, {"no": "1-2-09", "label": "消防法適合状況", "fmt": "点検指摘事項の有無・内容", "source": "消防設備点検報告書", "method": "資料確認", "kind": "i"}, {"no": "1-2-10", "label": "アスベスト含有調査", "fmt": "選択", "source": "分析調査報告書", "method": "資料確認", "kind": "i", "dv": "asbestos"}, {"no": "1-2-11", "label": "アスベスト含有箇所・レベル", "fmt": "例：機械室吹付け・レベル1", "source": "分析調査報告書", "method": "資料転記", "kind": "i"}, {"no": "1-2-12", "label": "雨漏りの発生状況", "fmt": "現状・履歴", "source": "現地調査＋ヒアリング", "method": "現地確認", "kind": "i"}, {"no": "1-2-13", "label": "外壁の劣化状況", "fmt": "タイル浮き・爆裂・シーリング切れなど", "source": "現地調査", "method": "現地目視・打診", "kind": "i"}, {"no": "1-2-14", "label": "屋根・防水の劣化状況", "fmt": "改修歴・経過年数を含む", "source": "現地調査＋修繕履歴", "method": "現地目視", "kind": "i"}, {"no": "1-2-15", "label": "給排水設備の劣化状況", "fmt": "更新歴・漏水履歴", "source": "現地調査＋修繕履歴", "method": "現地確認", "kind": "i"}, {"no": "1-2-16", "label": "電気設備の劣化状況", "fmt": "受変電・幹線・更新歴", "source": "現地調査＋修繕履歴", "method": "現地確認", "kind": "i"}, {"no": "1-2-17", "label": "空調設備の劣化状況", "fmt": "設置年・冷媒種別（R22など）", "source": "現地調査＋設備台帳", "method": "現地確認", "kind": "i"}, {"no": "1-2-18", "label": "エレベーター", "fmt": "有無・設置年・リニューアル歴", "source": "保守契約・点検報告書", "method": "資料確認", "kind": "i"}, {"no": "1-2-19", "label": "重大修繕履歴（過去15年）", "fmt": "年・内容・金額", "source": "修繕台帳", "method": "資料転記", "kind": "i"}, {"no": "1-2-20", "label": "建物劣化　総合所見", "fmt": "設計担当コメント", "source": "ー", "method": "社内評価", "kind": "i"}]}, {"id": "1-3", "title": "1-3　災害リスク", "cat": 0, "short": "災害リスク", "items": [{"no": "1-3-01", "label": "洪水浸水想定", "fmt": "想定浸水深　例：0.5〜3m", "source": "ハザードマップポータル", "method": "Web調査", "kind": "i"}, {"no": "1-3-02", "label": "高潮リスク", "fmt": "想定浸水深", "source": "ハザードマップポータル", "method": "Web調査", "kind": "i"}, {"no": "1-3-03", "label": "津波リスク", "fmt": "想定浸水深", "source": "ハザードマップポータル", "method": "Web調査", "kind": "i"}, {"no": "1-3-04", "label": "液状化リスク", "fmt": "選択", "source": "自治体液状化マップ", "method": "Web調査", "kind": "i", "dv": "ekijoka"}, {"no": "1-3-05", "label": "土砂災害警戒区域", "fmt": "選択", "source": "ハザードマップポータル", "method": "Web調査", "kind": "i", "dv": "dosha"}, {"no": "1-3-06", "label": "想定最大震度", "fmt": "例：震度6強（○○地震）", "source": "自治体地域防災計画", "method": "Web調査", "kind": "i"}, {"no": "1-3-07", "label": "避難場所・地域貢献活用の可能性", "fmt": "指定状況・活用余地", "source": "自治体防災計画＋ヒアリング", "method": "Web＋ヒアリング", "kind": "i"}, {"no": "1-3-08", "label": "非常用電源", "fmt": "有無・容量・稼働可能時間", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "1-3-09", "label": "給水設備（災害時対応）", "fmt": "受水槽容量・給水可否", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "1-3-10", "label": "災害時サービス拠点適性", "fmt": "BCP上の位置づけ所見", "source": "ー", "method": "社内評価", "kind": "i"}]}, {"id": "2-1", "title": "2-1　施設調査：サービス工場", "cat": 1, "short": "サービス工場", "items": [{"no": "2-1-01", "label": "ストール数", "fmt": "内訳　例：整備6・検査ライン2・板金2", "source": "現地調査", "method": "現地計測", "kind": "i"}, {"no": "2-1-02", "label": "リフト数・種類", "fmt": "例：2柱4基・4柱2基", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-1-03", "label": "リフト設置年（最古／平均）", "fmt": "例：最古1998年・平均2008年", "source": "設備台帳", "method": "資料＋現地", "kind": "i"}, {"no": "2-1-04", "label": "ストール稼働率", "fmt": "％（直近12ヶ月平均）例：78.5", "source": "クライアント実績データ", "method": "データ分析", "kind": "i"}, {"no": "2-1-05", "label": "1ストール当たり売上", "fmt": "万円／年", "source": "クライアント実績データ", "method": "データ分析", "kind": "i"}, {"no": "2-1-06", "label": "エンジニア数", "fmt": "人（うち国家資格者数）", "source": "クライアント人事データ", "method": "データ確認", "kind": "i"}, {"no": "2-1-07", "label": "エンジニア1人当たり売上", "fmt": "万円／年", "source": "クライアント実績データ", "method": "データ分析", "kind": "i"}, {"no": "2-1-08", "label": "年間入庫台数", "fmt": "台（車検／一般整備別）", "source": "クライアント実績データ", "method": "データ分析", "kind": "i"}, {"no": "2-1-09", "label": "工場空調", "fmt": "選択", "source": "現地調査", "method": "現地確認", "kind": "i", "dv": "kucho"}, {"no": "2-1-10", "label": "外気遮断設備", "fmt": "シャッター・エアカーテンなど", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-1-11", "label": "EV整備対応", "fmt": "専用ストール・絶縁工具・低圧電気取扱資格者数", "source": "現地＋ヒアリング", "method": "現地＋ヒアリング", "kind": "i"}, {"no": "2-1-12", "label": "急速充電器", "fmt": "基数・出力kW", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-1-13", "label": "普通充電器", "fmt": "基数", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-1-14", "label": "洗車設備", "fmt": "洗車機有無・手洗いブース", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-1-15", "label": "部品保管能力", "fmt": "面積・棚数・課題", "source": "現地＋ヒアリング", "method": "現地＋ヒアリング", "kind": "i"}, {"no": "2-1-16", "label": "整備機器・テスターの更新状況", "fmt": "主要機器の年式", "source": "設備台帳", "method": "資料＋現地", "kind": "i"}, {"no": "2-1-17", "label": "工場動線・入出庫の課題", "fmt": "所見", "source": "現地＋ヒアリング", "method": "現地観察", "kind": "i"}]}, {"id": "2-2", "title": "2-2　施設調査：ショールーム", "cat": 1, "short": "ショールーム", "items": [{"no": "2-2-01", "label": "ショールーム面積", "fmt": "㎡", "source": "竣工図＋現地", "method": "資料＋現地", "kind": "i"}, {"no": "2-2-02", "label": "商談席数", "fmt": "卓数・席数", "source": "現地調査", "method": "現地計測", "kind": "i"}, {"no": "2-2-03", "label": "屋内展示可能台数", "fmt": "台", "source": "現地調査", "method": "現地計測", "kind": "i"}, {"no": "2-2-04", "label": "屋外展示台数", "fmt": "台", "source": "現地調査", "method": "現地計測", "kind": "i"}, {"no": "2-2-05", "label": "商談スペースの質", "fmt": "個室・半個室の有無など", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-2-06", "label": "納車スペース", "fmt": "選択＋演出設備の有無", "source": "現地調査", "method": "現地確認", "kind": "i", "dv": "nosha"}, {"no": "2-2-07", "label": "キッズスペース", "fmt": "有無・広さ・状態", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-2-08", "label": "待合・カフェ環境", "fmt": "席数・提供内容", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-2-09", "label": "トイレ", "fmt": "数・洋式化・改修年", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-2-10", "label": "バリアフリー対応", "fmt": "スロープ・多目的トイレ・手すり・自動ドア", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-2-11", "label": "来客用駐車台数", "fmt": "台", "source": "現地調査", "method": "現地計測", "kind": "i"}, {"no": "2-2-12", "label": "来客用EV充電設備", "fmt": "基数・種別", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-2-13", "label": "デジタル設備", "fmt": "大型モニタ・サイネージ・商談タブレット", "source": "現地＋ヒアリング", "method": "現地確認", "kind": "i"}, {"no": "2-2-14", "label": "外観・ファサードの状態", "fmt": "CI基準適合・劣化度", "source": "現地調査", "method": "現地目視", "kind": "i"}, {"no": "2-2-15", "label": "看板・サインの状態", "fmt": "老朽度・視認性・夜間照明", "source": "現地調査", "method": "現地目視", "kind": "i"}]}, {"id": "2-3", "title": "2-3　施設調査：従業員環境", "cat": 1, "short": "従業員環境", "items": [{"no": "2-3-01", "label": "事務所面積・執務環境", "fmt": "㎡・レイアウト状況", "source": "竣工図＋現地", "method": "資料＋現地", "kind": "i"}, {"no": "2-3-02", "label": "更衣室", "fmt": "男女別有無・ロッカー数", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-3-03", "label": "休憩室・食事スペース", "fmt": "有無・広さ・状態", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-3-04", "label": "従業員用トイレ", "fmt": "男女別・数・状態", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-3-05", "label": "事務所・バックヤード空調", "fmt": "方式・効き", "source": "現地＋ヒアリング", "method": "現地確認", "kind": "i"}, {"no": "2-3-06", "label": "従業員動線", "fmt": "工場⇔事務所⇔ショールームの課題", "source": "現地調査", "method": "現地観察", "kind": "i"}, {"no": "2-3-07", "label": "従業員駐車場", "fmt": "台数・店舗からの距離", "source": "現地調査", "method": "現地確認", "kind": "i"}, {"no": "2-3-08", "label": "店舗責任者ヒアリング", "fmt": "働きやすさ・施設課題・要望", "source": "ヒアリング", "method": "定性調査（様式別紙）", "kind": "i"}, {"no": "2-3-09", "label": "営業スタッフヒアリング", "fmt": "同上", "source": "ヒアリング", "method": "定性調査（様式別紙）", "kind": "i"}, {"no": "2-3-10", "label": "サービススタッフヒアリング", "fmt": "同上", "source": "ヒアリング", "method": "定性調査（様式別紙）", "kind": "i"}, {"no": "2-3-11", "label": "採用・定着の観点での課題", "fmt": "女性更衣室・休憩環境など", "source": "ヒアリング", "method": "定性調査", "kind": "i"}, {"no": "2-3-12", "label": "従業員環境　総合所見", "fmt": "改善要望の上位整理", "source": "ー", "method": "社内評価", "kind": "i"}]}, {"id": "3-1", "title": "3-1　商圏評価：人口動態分析", "cat": 2, "short": "人口動態", "items": [{"no": "3-1-01", "label": "人口総数（3km圏）", "fmt": "人", "source": "jSTAT MAP（国勢調査）", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-02", "label": "人口総数（5km圏）", "fmt": "人", "source": "jSTAT MAP（国勢調査）", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-03", "label": "人口総数（10km圏）", "fmt": "人", "source": "jSTAT MAP（国勢調査）", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-04", "label": "世帯数（3km圏）", "fmt": "世帯", "source": "jSTAT MAP（国勢調査）", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-05", "label": "世帯数（5km圏）", "fmt": "世帯", "source": "jSTAT MAP（国勢調査）", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-06", "label": "世帯数（10km圏）", "fmt": "世帯", "source": "jSTAT MAP（国勢調査）", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-07", "label": "人口増減率・直近5年（3km圏）", "fmt": "％　例：-2.3", "source": "国勢調査（2時点比較）", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-08", "label": "人口増減率・直近5年（5km圏）", "fmt": "％", "source": "国勢調査（2時点比較）", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-09", "label": "人口増減率・直近5年（10km圏）", "fmt": "％", "source": "国勢調査（2時点比較）", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-10", "label": "生産年齢人口比率（3km圏）", "fmt": "％（15〜64歳）", "source": "国勢調査", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-11", "label": "生産年齢人口比率（5km圏）", "fmt": "％", "source": "国勢調査", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-12", "label": "生産年齢人口比率（10km圏）", "fmt": "％", "source": "国勢調査", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-13", "label": "高齢化率（3km圏）", "fmt": "％（65歳以上）", "source": "国勢調査", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-14", "label": "高齢化率（5km圏）", "fmt": "％", "source": "国勢調査", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-15", "label": "高齢化率（10km圏）", "fmt": "％", "source": "国勢調査", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-16", "label": "将来推計人口　2030年（3km圏）", "fmt": "人", "source": "社人研 地域メッシュ推計", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-17", "label": "将来推計人口　2030年（5km圏）", "fmt": "人", "source": "社人研 地域メッシュ推計", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-18", "label": "将来推計人口　2030年（10km圏）", "fmt": "人", "source": "社人研 地域メッシュ推計", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-19", "label": "将来推計人口　2035年（3km圏）", "fmt": "人", "source": "社人研 地域メッシュ推計", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-20", "label": "将来推計人口　2035年（5km圏）", "fmt": "人", "source": "社人研 地域メッシュ推計", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-21", "label": "将来推計人口　2035年（10km圏）", "fmt": "人", "source": "社人研 地域メッシュ推計", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-22", "label": "将来推計人口　2040年（3km圏）", "fmt": "人", "source": "社人研 地域メッシュ推計", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-23", "label": "将来推計人口　2040年（5km圏）", "fmt": "人", "source": "社人研 地域メッシュ推計", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-24", "label": "将来推計人口　2040年（10km圏）", "fmt": "人", "source": "社人研 地域メッシュ推計", "method": "GIS商圏分析", "kind": "i"}, {"no": "3-1-25", "label": "人口指数 2040年（5km圏・現在＝100）", "fmt": "指数（自動計算）", "source": "ー", "method": "自動計算", "kind": "a", "auto": "popidx"}, {"no": "3-1-26", "label": "将来人口動態　総合所見", "fmt": "増減の質・エリア差", "source": "ー", "method": "社内評価", "kind": "i"}]}, {"id": "3-2", "title": "3-2　商圏評価：自動車市場分析", "cat": 2, "short": "自動車市場", "items": [{"no": "3-2-01", "label": "自動車保有台数（商圏内・乗用車）", "fmt": "台", "source": "自動車検査登録情報協会（市区町村別）", "method": "データ購入・推計", "kind": "i"}, {"no": "3-2-02", "label": "トヨタ車保有台数（UIO）", "fmt": "台", "source": "クライアントデータ（管理顧客・UIO）", "method": "データ分析", "kind": "i"}, {"no": "3-2-03", "label": "トヨタ保有シェア", "fmt": "％（自動計算）", "source": "ー", "method": "自動計算", "kind": "a", "auto": "share"}, {"no": "3-2-04", "label": "世帯当たり保有台数", "fmt": "台／世帯", "source": "都道府県統計・推計", "method": "データ分析", "kind": "i"}, {"no": "3-2-05", "label": "新車市場規模（商圏推計）", "fmt": "台／年", "source": "登録統計＋商圏按分", "method": "データ推計", "kind": "i"}, {"no": "3-2-06", "label": "中古車市場規模（商圏推計）", "fmt": "台／年", "source": "登録統計＋商圏按分", "method": "データ推計", "kind": "i"}, {"no": "3-2-07", "label": "法人需要", "fmt": "事業所数・社用車需要の所見", "source": "経済センサス", "method": "データ分析", "kind": "i"}, {"no": "3-2-08", "label": "当店新車販売シェア", "fmt": "％", "source": "クライアント実績", "method": "データ分析", "kind": "i"}, {"no": "3-2-09", "label": "サービス入庫ポテンシャル", "fmt": "UIO×想定入庫率の試算", "source": "クライアント実績＋推計", "method": "データ推計", "kind": "i"}, {"no": "3-2-10", "label": "EV・電動車普及動向（地域）", "fmt": "所見", "source": "登録統計・自治体政策", "method": "データ分析", "kind": "i"}, {"no": "3-2-11", "label": "市場ポテンシャル　総合所見", "fmt": "所見", "source": "ー", "method": "社内評価", "kind": "i"}]}, {"id": "3-3", "title": "3-3　商圏評価：競争環境・商圏重複", "cat": 2, "short": "競争環境", "items": [{"no": "3-3-01", "label": "トヨタ系店舗（自社）近隣店舗", "fmt": "店舗名・距離", "source": "自社台帳＋地図", "method": "地図分析", "kind": "i"}, {"no": "3-3-02", "label": "トヨタ系店舗（他法人）", "fmt": "店舗名・距離", "source": "地図・各社HP", "method": "地図分析", "kind": "i"}, {"no": "3-3-03", "label": "他メーカーディーラー", "fmt": "主要店舗・距離", "source": "地図調査", "method": "地図分析", "kind": "i"}, {"no": "3-3-04", "label": "中古車販売大手", "fmt": "店舗・距離", "source": "地図調査", "method": "地図分析", "kind": "i"}, {"no": "3-3-05", "label": "整備工場・車検チェーン", "fmt": "主要競合・密度", "source": "地図調査", "method": "地図分析", "kind": "i"}, {"no": "3-3-06", "label": "自社店舗間の商圏重複", "fmt": "重複店舗名・重複度（5km圏の重なり）", "source": "GIS商圏分析", "method": "GIS分析", "kind": "i"}, {"no": "3-3-07", "label": "競合対比の優位性", "fmt": "立地・視認性・規模の所見", "source": "現地＋地図", "method": "社内評価", "kind": "i"}, {"no": "3-3-08", "label": "再編検討上の位置づけ", "fmt": "統合候補・受け皿適性の所見", "source": "ー", "method": "社内評価", "kind": "i"}]}, {"id": "3-4", "title": "3-4　商圏評価：都市・地域変化", "cat": 2, "short": "都市地域変化", "items": [{"no": "3-4-01", "label": "再開発計画", "fmt": "地区・時期・規模", "source": "自治体都市計画資料", "method": "Web＋役所調査", "kind": "i"}, {"no": "3-4-02", "label": "道路整備計画", "fmt": "バイパス・IC・拡幅など", "source": "自治体・国交省資料", "method": "Web＋役所調査", "kind": "i"}, {"no": "3-4-03", "label": "鉄道・公共交通の変化", "fmt": "新駅・減便など", "source": "事業者発表", "method": "Web調査", "kind": "i"}, {"no": "3-4-04", "label": "大型商業施設の動向", "fmt": "出店・閉店計画", "source": "業界情報・自治体", "method": "Web調査", "kind": "i"}, {"no": "3-4-05", "label": "住宅開発の動向", "fmt": "大規模宅地・マンション供給", "source": "自治体・不動産情報", "method": "Web調査", "kind": "i"}, {"no": "3-4-06", "label": "企業進出・雇用動向", "fmt": "工業団地・大型雇用", "source": "自治体・経済ニュース", "method": "Web調査", "kind": "i"}, {"no": "3-4-07", "label": "人口流入・流出の要因", "fmt": "所見（3-1と統合分析）", "source": "ー", "method": "社内分析", "kind": "i"}, {"no": "3-4-08", "label": "立地優位性の将来判定", "fmt": "選択", "source": "ー", "method": "社内評価", "kind": "i", "dv": "ritchi"}]}, {"id": "4-1", "title": "4-1　資産評価：不動産条件の整理", "cat": 3, "short": "不動産条件", "items": [{"no": "4-1-01", "label": "土地簿価", "fmt": "千円", "source": "クライアント財務資料", "method": "資料転記", "kind": "i"}, {"no": "4-1-02", "label": "土地時価（概算）", "fmt": "千円（路線価・公示地価ベース）", "source": "路線価図・公示地価", "method": "机上査定", "kind": "i"}, {"no": "4-1-03", "label": "固定資産税・都市計画税", "fmt": "千円／年", "source": "課税明細書", "method": "資料転記", "kind": "i"}, {"no": "4-1-04", "label": "建物簿価（残存簿価）", "fmt": "千円", "source": "固定資産台帳", "method": "資料転記", "kind": "i"}, {"no": "4-1-05", "label": "減価償却の残存年数", "fmt": "年", "source": "固定資産台帳", "method": "資料転記", "kind": "i"}, {"no": "4-1-06", "label": "賃料", "fmt": "千円／月　※賃借の場合", "source": "賃貸借契約書", "method": "資料転記", "kind": "i"}, {"no": "4-1-07", "label": "契約満了時期・更新条件", "fmt": "満了年月・更新／解約条項", "source": "賃貸借契約書", "method": "資料精読", "kind": "i"}, {"no": "4-1-08", "label": "中途解約・原状回復条項", "fmt": "内容", "source": "賃貸借契約書", "method": "資料精読", "kind": "i"}, {"no": "4-1-09", "label": "用途地域", "fmt": "選択", "source": "都市計画情報（自治体Web）", "method": "Web調査", "kind": "i", "dv": "yoto"}, {"no": "4-1-10", "label": "建ぺい率／容積率（指定）", "fmt": "％／％　例：80／300", "source": "都市計画情報", "method": "Web調査", "kind": "i"}, {"no": "4-1-11", "label": "現況の建ぺい率・容積率消化", "fmt": "使用容積・余剰の試算", "source": "竣工図＋試算", "method": "社内試算", "kind": "i"}, {"no": "4-1-12", "label": "その他法規制", "fmt": "防火地域・高度地区・地区計画など", "source": "都市計画情報", "method": "Web＋役所調査", "kind": "i"}]}, {"id": "4-2", "title": "4-2　資産評価：建替え可能性", "cat": 3, "short": "建替可能性", "items": [{"no": "4-2-01", "label": "敷地形状の評価", "fmt": "整形／不整形・間口・奥行", "source": "測量図＋現地", "method": "資料＋現地", "kind": "i"}, {"no": "4-2-02", "label": "接道条件", "fmt": "接道方位・幅員・接道長", "source": "現地＋道路台帳", "method": "現地＋役所調査", "kind": "i"}, {"no": "4-2-03", "label": "用途地域上の建替え可否", "fmt": "現用途（販売・整備）継続の可否", "source": "都市計画情報＋建築士判断", "method": "社内判定", "kind": "i"}, {"no": "4-2-04", "label": "既存不適格事項", "fmt": "有無・内容", "source": "竣工図＋現行法規照合", "method": "社内判定", "kind": "i"}, {"no": "4-2-05", "label": "建築可能規模の試算", "fmt": "建築面積・延床の上限試算", "source": "建ぺい率・容積率から試算", "method": "社内試算", "kind": "i"}, {"no": "4-2-06", "label": "仮店舗の必要性・候補", "fmt": "要否・候補地", "source": "近隣調査", "method": "社内検討", "kind": "i"}, {"no": "4-2-07", "label": "居ながら工事の可能性", "fmt": "段階施工・営業継続可否", "source": "敷地条件から判断", "method": "社内検討", "kind": "i"}, {"no": "4-2-08", "label": "工事期間中の売上影響", "fmt": "想定影響の試算", "source": "クライアント実績＋想定", "method": "社内試算", "kind": "i"}, {"no": "4-2-09", "label": "近隣店舗での代替受入可否", "fmt": "ローリング計画上の制約", "source": "店舗網から判断", "method": "社内検討", "kind": "i"}, {"no": "4-2-10", "label": "建替え難易度　総合所見", "fmt": "所見", "source": "ー", "method": "社内評価", "kind": "i"}]}], "axes": [{"no": "A1", "cat": "A", "catName": "A　建物・安全性", "name": "耐震性能", "ref": "1-1・1-2", "point": "耐震区分・Is値・補強状況"}, {"no": "A2", "cat": "A", "catName": "A　建物・安全性", "name": "建物劣化度", "ref": "1-2", "point": "屋根・外壁・防水・雨漏り"}, {"no": "A3", "cat": "A", "catName": "A　建物・安全性", "name": "設備劣化度", "ref": "1-2", "point": "給排水・電気・空調・EV"}, {"no": "A4", "cat": "A", "catName": "A　建物・安全性", "name": "法適合・有害物質", "ref": "1-2", "point": "消防法・アスベスト・既存不適格"}, {"no": "A5", "cat": "A", "catName": "A　建物・安全性", "name": "災害リスク", "ref": "1-3", "point": "ハザード該当・非常用設備"}, {"no": "B1", "cat": "B", "catName": "B　施設機能性", "name": "サービス工場の能力・生産性", "ref": "2-1", "point": "ストール数・稼働率・生産性"}, {"no": "B2", "cat": "B", "catName": "B　施設機能性", "name": "EV・次世代対応", "ref": "2-1・2-2", "point": "EV整備体制・充電設備"}, {"no": "B3", "cat": "B", "catName": "B　施設機能性", "name": "ショールーム・顧客環境", "ref": "2-2", "point": "商談環境・展示・バリアフリー"}, {"no": "B4", "cat": "B", "catName": "B　施設機能性", "name": "従業員環境", "ref": "2-3", "point": "更衣・休憩・動線・ヒアリング"}, {"no": "B5", "cat": "B", "catName": "B　施設機能性", "name": "敷地余裕・駐車場", "ref": "2-2・4-2", "point": "駐車台数・敷地の余裕度"}, {"no": "C1", "cat": "C", "catName": "C　商圏・将来性", "name": "現在商圏規模", "ref": "3-1", "point": "人口・世帯数"}, {"no": "C2", "cat": "C", "catName": "C　商圏・将来性", "name": "将来人口動態", "ref": "3-1", "point": "増減率・将来推計・高齢化"}, {"no": "C3", "cat": "C", "catName": "C　商圏・将来性", "name": "市場ポテンシャル", "ref": "3-2", "point": "保有台数・シェア余地・法人需要"}, {"no": "C4", "cat": "C", "catName": "C　商圏・将来性", "name": "競争環境", "ref": "3-3", "point": "競合密度・競合対比の優位性"}, {"no": "C5", "cat": "C", "catName": "C　商圏・将来性", "name": "商圏重複度", "ref": "3-3", "point": "自社店舗との重複（少ないほど高評価）"}, {"no": "C6", "cat": "C", "catName": "C　商圏・将来性", "name": "立地の将来性", "ref": "3-4", "point": "再開発・インフラ・地域変化"}, {"no": "D1", "cat": "D", "catName": "D　資産性・投資条件", "name": "権利関係の安定性", "ref": "1-1・4-1", "point": "所有／賃借・残存契約期間"}, {"no": "D2", "cat": "D", "catName": "D　資産性・投資条件", "name": "資産価値・保有コスト", "ref": "4-1", "point": "時価・簿価・税・賃料"}, {"no": "D3", "cat": "D", "catName": "D　資産性・投資条件", "name": "建替えの自由度", "ref": "4-2", "point": "法規制・敷地条件・建築可能規模"}, {"no": "D4", "cat": "D", "catName": "D　資産性・投資条件", "name": "営業継続性", "ref": "4-2", "point": "居ながら工事・近隣店舗での代替"}], "criteria": {"A1": {"p5": "新耐震で構造健全（懸念なし）", "p3": "旧耐震だが補強済（Is0.6相当以上）", "p1": "旧耐震・未診断／未補強、またはIs値0.3未満"}, "A2": {"p5": "大規模修繕後5年以内・不具合なし", "p3": "部分劣化あり・計画修繕で対応可能", "p1": "雨漏り常態化・外壁爆裂など緊急対応が必要"}, "A3": {"p5": "主要設備を10年以内に更新済", "p3": "更新時期到来・故障が散発", "p1": "更新限界超過・故障頻発・冷媒規制非対応"}, "A4": {"p5": "指摘なし・アスベストなし", "p3": "軽微な指摘・アスベストは封じ込め管理中", "p1": "重大指摘あり・レベル1アスベスト未対策"}, "A5": {"p5": "ハザード該当なし・非常用設備あり", "p3": "浸水0.5m未満など軽度リスク", "p1": "浸水3m以上・土砂特別警戒など重大リスク"}, "B1": {"p5": "ストール余力あり・稼働率適正（70〜85％）・生産性が全社上位", "p3": "全社平均並み", "p1": "能力不足または過剰が顕著・生産性が下位"}, "B2": {"p5": "急速充電＋EV整備体制が完備", "p3": "普通充電のみ・一部対応", "p1": "対応なし・設置余地も乏しい"}, "B3": {"p5": "現CI基準に適合・商談環境良好", "p3": "機能するが陳腐化が進む", "p1": "狭隘・老朽化で顧客体験を毀損"}, "B4": {"p5": "男女別更衣・休憩完備・現場の不満が少ない", "p3": "最低限あるが改善要望が多い", "p1": "更衣・休憩が不備で採用・定着に支障"}, "B5": {"p5": "駐車・展示・拡張に余裕", "p3": "充足ぎりぎり", "p1": "慢性的不足・借地で補完している"}, "C1": {"p5": "5km圏人口が全店上位25％", "p3": "全店中位", "p1": "全店下位25％"}, "C2": {"p5": "2040年も人口維持・増加見込み", "p3": "5％程度の微減", "p1": "15％超の減少・高齢化が急進"}, "C3": {"p5": "保有台数が多くシェア拡大余地大", "p3": "平均的", "p1": "市場縮小・シェア飽和"}, "C4": {"p5": "競合が少なく優位", "p3": "競合並存・拮抗", "p1": "競合密集・劣位"}, "C5": {"p5": "自社店舗との重複ほぼなし", "p3": "一部重複", "p1": "大幅重複・カニバリが発生"}, "C6": {"p5": "再開発・インフラ整備で向上見込み", "p3": "大きな変化なし", "p1": "市街地衰退・交通量減で低下見込み"}, "D1": {"p5": "土地・建物とも自社所有", "p3": "賃借だが長期残存・更新確実", "p1": "残存期間が短く更新が不透明"}, "D2": {"p5": "時価＞簿価・保有コスト軽い", "p3": "均衡", "p1": "含み損・高賃料など高コスト"}, "D3": {"p5": "法規制に余裕・整形地・容積余剰大", "p3": "現状規模の再建は可能", "p1": "既存不適格・再建で規模縮小"}, "D4": {"p5": "居ながら工事可・近隣店舗で代替可", "p3": "一部休業で対応可能", "p1": "全面休業必至・代替店舗なし"}}, "lists": {"status": ["未着手", "調査中", "確認待ち", "完了", "対象外"], "yesno": ["有", "無", "不明"], "struct": ["RC造", "S造", "SRC造", "W造", "混構造", "その他"], "taishin": ["新耐震", "旧耐震", "不明"], "shindan": ["実施済", "実施中", "未実施", "不明"], "hokyo": ["実施済", "一部実施", "未実施", "不要（新耐震）"], "tochi": ["所有", "賃借", "借地権（旧法）", "普通借地権", "定期借地権"], "tatemono": ["所有", "賃借"], "tosho": ["完備", "一部あり", "なし", "不明"], "asbestos": ["調査済・含有なし", "調査済・含有あり", "未調査", "調査中"], "ekijoka": ["高", "中", "低", "対象外", "不明"], "dosha": ["特別警戒区域内", "警戒区域内", "区域外"], "kucho": ["全体空調あり", "スポット空調のみ", "なし"], "nosha": ["専用あり", "兼用", "なし"], "yoto": ["商業", "近隣商業", "準工業", "工業", "工業専用", "第一種住居", "第二種住居", "準住居", "第一種中高層", "第二種中高層", "第一種低層", "第二種低層", "田園住居", "市街化調整区域", "無指定"], "ritchi": ["向上", "維持", "低下"], "hantei": ["S：戦略投資", "A：継続投資", "B：維持投資", "C：再編検討", "保留"], "phase": ["第1期（〜3年）", "第2期（4〜6年）", "第3期（7年〜）", "未定"]}, "catNames": ["1．物件・建物", "2．施設・環境", "3．商圏・将来性", "4．資産・投資条件"], "catShort": {"A": "建物・安全性", "B": "施設機能性", "C": "商圏・将来性", "D": "資産性・投資条件"}}</script>
+<script id="demo" type="application/json">{"meta": {"storeNo": "ST-07", "storeName": "○○店（デモ）", "client": "○○トヨタ株式会社", "period": "2026/8/18〜8/22", "owner": "山田", "soken": "商圏の将来性が高い一方、旧耐震・補強未了と設備更新期が重なる。建替えを含む戦略投資の最有力候補。女性更衣室など従業員環境の改善は投資判断を待たず先行実施を推奨。"}, "items": {"1-1-01": {"v": "愛知県○○市△△町1-2-3", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-02": {"v": "2,480", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-03": {"v": "1,450", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-04": {"v": "S造", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-05": {"v": "地上2階・地下なし", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-06": {"v": "1988年10月", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-07": {"v": "1988", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-09": {"v": "1988年3月", "note": "確認済証原本あり", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-10": {"v": "有", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-11": {"v": "2005年 サービス工場ストール2基増築（確認申請あり）", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-12": {"v": "所有", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-13": {"v": "所有", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-14": {"v": "クライアント本体", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-15": {"v": "クライアント本体", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-1-19": {"v": "一部あり", "note": "意匠図あり・構造図欠落", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-2-01": {"v": "旧耐震", "note": "1981年6月より前の確認申請", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-02": {"v": "実施済", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-03": {"v": "2016年・○○構造設計事務所", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-04": {"v": "0.55", "note": "2階X方向が最小", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-06": {"v": "未実施", "note": "診断後、未着手のまま", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-08": {"v": "SR側柱脚に軽微な錆。不同沈下の兆候なし", "note": "写真No.21-24", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-09": {"v": "指摘なし（2026年3月点検）", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-2-10": {"v": "調査済・含有なし", "note": "2018年分析調査", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-2-12": {"v": "工場北側シャッター上部で降雨時に滴下", "note": "写真No.31", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-13": {"v": "南面タイルに浮き・白華（約5㎡）", "note": "要部分補修。写真No.12-15", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-14": {"v": "屋上防水2010年改修・膨れ数カ所", "note": "写真No.41-44", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-15": {"v": "受水槽1995年設置・更新推奨", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-16": {"v": "キュービクル2005年更新・EV急速充電の増設余力小", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-17": {"v": "SR空調2008年・R22冷媒", "note": "更新優先度高", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-2-18": {"v": "無", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-2-19": {"v": "2010年 屋上防水改修 850万円／2016年 SR内装 1,200万円", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-2-20": {"v": "構造は補強前提。防水・空調・受変電が更新期。", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "1-3-01": {"v": "0.5〜1.0m（想定最大規模）", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "1-3-02": {"v": "対象外", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "1-3-03": {"v": "対象外", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "1-3-04": {"v": "中", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "1-3-05": {"v": "区域外", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "1-3-06": {"v": "震度6強（○○地震想定）", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "1-3-07": {"v": "指定なし。駐車場開放の余地あり（店長前向き）", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "1-3-08": {"v": "無", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-3-09": {"v": "受水槽10t・災害時給水は要弁改修", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "1-3-10": {"v": "幹線道路沿い・給電設備追加で拠点適性あり", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "2-1-01": {"v": "整備6・検査2", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-1-02": {"v": "2柱4基・4柱2基", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-1-03": {"v": "最古1998年・平均2009年", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-1-04": {"v": "82", "note": "直近12ヶ月", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "2-1-05": {"v": "1,850", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "2-1-06": {"v": "8（うち1級2名）", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-1-09": {"v": "スポット空調のみ", "note": "夏季の暑熱が課題", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-1-11": {"v": "専用ストールなし・資格者2名", "note": "", "st": "調査中", "date": "", "by": ""}, "2-1-12": {"v": "なし", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-1-15": {"v": "部品庫あふれ・外部倉庫月3万円", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-2-01": {"v": "420", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-2-02": {"v": "6卓24席", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-2-03": {"v": "5", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-2-07": {"v": "あり（商談席から視認可）", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-2-09": {"v": "男女各1・和式残存", "note": "改修要望多", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-2-10": {"v": "スロープあり・多目的トイレなし", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-2-14": {"v": "旧CI基準のまま", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "2-3-02": {"v": "男性のみ・女性は簡易更衣", "note": "採用上の課題", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-3-03": {"v": "6畳・老朽", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-3-08": {"v": "商談席不足・女性更衣室・工場暑熱が3大課題", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "2-3-11": {"v": "女性整備士の応募辞退が過去2件（更衣室起因）", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "3-1-01": {"v": "38,200", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-02": {"v": "96,500", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-03": {"v": "228,000", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-04": {"v": "15,900", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-05": {"v": "40,300", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-06": {"v": "97,800", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-07": {"v": "-1.8", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-08": {"v": "-0.9", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-09": {"v": "-0.4", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-10": {"v": "58.2", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-11": {"v": "59.1", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-12": {"v": "60.0", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-13": {"v": "29.5", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-14": {"v": "28.0", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-15": {"v": "26.8", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-16": {"v": "37,100", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-17": {"v": "94,600", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-18": {"v": "225,500", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-19": {"v": "36,200", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-20": {"v": "92,800", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-21": {"v": "222,000", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-22": {"v": "35,300", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-23": {"v": "90,700", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-24": {"v": "218,000", "note": "", "st": "完了", "date": "2026-08-12", "by": "鈴木"}, "3-1-26": {"v": "5km圏は微減にとどまる。3km圏の高齢化がやや先行。", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "3-2-01": {"v": "58,400", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "3-2-02": {"v": "13,900", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "3-2-08": {"v": "11.2", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "3-2-11": {"v": "UIO厚くシェア拡大余地あり。法人需要も堅調。", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "3-3-01": {"v": "△△店（4.2km）", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "3-3-06": {"v": "△△店と5km圏の28%が重複", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "3-3-07": {"v": "幹線道路沿い・視認性は競合優位", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "3-4-01": {"v": "駅前地区で再開発計画（2029年度着工予定）", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "3-4-02": {"v": "バイパス延伸事業中（2028年度供用予定）", "note": "", "st": "完了", "date": "2026-08-20", "by": "鈴木"}, "3-4-08": {"v": "向上", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "4-1-01": {"v": "185,000", "note": "", "st": "完了", "date": "2026-08-20", "by": "高橋"}, "4-1-02": {"v": "232,000", "note": "路線価ベース概算", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "4-1-03": {"v": "3,100", "note": "", "st": "完了", "date": "2026-08-20", "by": "高橋"}, "4-1-04": {"v": "48,000", "note": "", "st": "完了", "date": "2026-08-20", "by": "高橋"}, "4-1-09": {"v": "準工業", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "4-1-10": {"v": "60／200", "note": "", "st": "完了", "date": "2026-08-20", "by": "山田"}, "4-1-11": {"v": "容積消化58%・増築余地あり", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "4-2-01": {"v": "整形地・間口45m", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "4-2-02": {"v": "南側幅員16m・接道45m", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "4-2-03": {"v": "可（準工業・現用途継続可）", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "4-2-05": {"v": "延床上限 約4,900㎡（現況の3.4倍）", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "4-2-07": {"v": "敷地内ローテーションで居ながら建替え可能", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}, "4-2-10": {"v": "建替え自由度は高い。仮店舗不要の段階施工案が有力。", "note": "", "st": "完了", "date": "2026-08-20", "by": "佐藤"}}, "scores": {"A1": 2, "A2": 2, "A3": 2, "A4": 3, "A5": 3, "B1": 3, "B2": 2, "B3": 3, "B4": 2, "B5": 4, "C1": 4, "C2": 4, "C3": 4, "C4": 4, "C5": 3, "C6": 5, "D1": 5, "D2": 4, "D3": 5, "D4": 4}, "reasons": {"A1": "旧耐震・Is0.55・補強未実施", "C6": "再開発＋バイパス延伸で立地向上", "D3": "準工業・容積余剰大", "B4": "女性更衣室なしが採用に影響"}, "weights": {"A": 30, "B": 20, "C": 30, "D": 20}, "pm": "S：戦略投資", "pmReason": "商圏×資産条件が良く建物に課題。建替え最優先候補として第1期に位置づけ。"}</script>
+<script>
+"use strict";
+const M = JSON.parse(document.getElementById("model").textContent);
+const DEMO = JSON.parse(document.getElementById("demo").textContent);
+const YEAR = new Date().getFullYear();
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function blankState(){
+  return {meta:{storeNo:"",storeName:"",client:"",period:"",owner:"",soken:""},
+    items:{}, scores:{}, reasons:{}, weights:{A:30,B:20,C:30,D:20}, pm:"", pmReason:""};
+}
+let S = blankState();
+let dirty = false;
+let curView = "dash", curSheet = "1-1";
+
+const item = no => S.items[no] || (S.items[no] = {v:"",note:"",st:"未着手",date:"",by:""});
+const val = no => (S.items[no] && S.items[no].v || "").trim();
+const num = no => { const n = parseFloat(val(no).replace(/,/g,"")); return isNaN(n) ? null : n; };
+
+/* ---- 自動計算（Excel版と同一ロジック） ---- */
+function autoVal(id){
+  if(id==="age"){ const y=num("1-1-07"); return y===null?"":String(YEAR-y)+" 年"; }
+  if(id==="remain"){ const y=num("1-1-17"); return y===null?"":String(y-YEAR)+" 年"; }
+  if(id==="popidx"){ const a=num("3-1-02"), b=num("3-1-23"); return a&&b!==null?(Math.round(b/a*1000)/10).toFixed(1):""; }
+  if(id==="share"){ const a=num("3-2-01"), b=num("3-2-02"); return a&&b!==null?(Math.round(b/a*1000)/10).toFixed(1)+" %":""; }
+  return "";
+}
+/* ---- 進捗（完了＋対象外）/項目数 ---- */
+function sheetProg(sh){
+  let done=0;
+  sh.items.forEach(it=>{
+    const st = it.kind==="a" ? "対象外" : (S.items[it.no]?.st || "未着手");
+    if(st==="完了"||st==="対象外") done++;
+  });
+  return done/sh.items.length;
+}
+function totalProg(){ return M.sheets.reduce((s,sh)=>s+sheetProg(sh),0)/M.sheets.length; }
+
+/* ---- スコアリング ---- */
+function catAvg(c){
+  const xs = M.axes.filter(a=>a.cat===c).map(a=>S.scores[a.no]).filter(v=>v>=1);
+  return xs.length ? xs.reduce((a,b)=>a+b,0)/xs.length : null;
+}
+function totalScore(){
+  /* Excel版と同一：4カテゴリすべてに1軸以上の入力があれば算出 */
+  const cs=["A","B","C","D"];
+  if(cs.some(c=>catAvg(c)===null)) return null;
+  let t=0; cs.forEach(c=>{ t += catAvg(c)*S.weights[c]/5; });
+  return Math.round(t*10)/10;
+}
+function taishinFlag(){
+  const k=val("1-2-01"), h=val("1-2-06");
+  if(!k) return {cls:"", ic:"", txt:"耐震区分 未入力（1-2）"};
+  if(k==="新耐震") return {cls:"ok", ic:"✓", txt:"新耐震：優先補強の対象外"};
+  if(k==="不明") return {cls:"warn", ic:"！", txt:"【要確認】耐震区分が不明（建築確認申請日を確認）"};
+  if(h==="実施済") return {cls:"ok", ic:"✓", txt:"旧耐震・補強済：経過観察（劣化状況に応じ再評価）"};
+  return {cls:"crit", ic:"⚠", txt:"【最優先】旧耐震・補強未了：耐震診断・補強を最優先で検討"};
+}
+function autoJudge(){
+  const a=catAvg("A"), c=catAvg("C");
+  if(a===null||c===null) return null;
+  if(c>=3&&a>=3) return "A：継続投資（計画的リニューアル）";
+  if(c>=3&&a<3)  return "S：戦略投資（大規模改修・建替え候補）";
+  if(c<3&&a>=3)  return "B：維持投資（最小限の投資で現状維持）";
+  return "C：再編検討（統合・移転・閉鎖を含め検討）";
+}
+const badgeCls = t => t? "b-"+(t[0]==="保"?"N":t[0]) : "b-N";
+
+/* ---- ヘッダー更新 ---- */
+function updateHead(){
+  $("#hStore").textContent = S.meta.storeName ? `${S.meta.storeNo||"−"}　${S.meta.storeName}` : "店舗未設定";
+  $("#hProg").textContent = Math.round(totalProg()*100)+"%";
+  const t = totalScore();
+  $("#hScore").textContent = t===null?"−":t.toFixed(1);
+  const j = S.pm || autoJudge();
+  $("#hBadge").innerHTML = j?`<span class="badge ${badgeCls(j)}">${esc(j.split("（")[0])}</span>`:"";
+  $("#dirty").textContent = dirty?"未保存の変更があります — JSON保存を推奨":"未保存の変更はありません";
+}
+
+/* ================= ダッシュボード ================= */
+function ovRow(k,v){ return v?`<div class="k">${k}</div><div>${esc(v)}</div>`:""; }
+function renderDash(){
+  const t = totalScore(), tf = taishinFlag(), aj = autoJudge();
+  const cats=["A","B","C","D"];
+  const catRows = cats.map((c,i)=>{
+    const a=catAvg(c);
+    return `<div class="prow" style="cursor:default">
+      <span class="nm"><span class="dot cat${i}"></span>${c} ${M.catShort[c]}</span>
+      <span class="pbar"><i style="width:${a?a/5*100:0}%"></i></span>
+      <span class="pc">${a?a.toFixed(2):"−"}</span></div>`;
+  }).join("");
+  const progRows = M.sheets.map(sh=>{
+    const p=Math.round(sheetProg(sh)*100);
+    return `<div class="prow" data-goto="${sh.id}">
+      <span class="nm"><span class="dot cat${sh.cat}"></span>${sh.id} ${esc(sh.short)}</span>
+      <span class="pbar"><i style="width:${p}%"></i></span><span class="pc">${p}%</span></div>`;
+  }).join("");
+  const age=autoVal("age"), rem=autoVal("remain");
+  $("#view").innerHTML = `
+  <div class="card"><h3>調査基本情報</h3><div class="mgrid">
+    ${[["storeNo","店舗No","ST-01"],["storeName","店舗名",""],["client","クライアント名",""],["period","調査期間","2026/8/18〜8/22"],["owner","記入責任者",""]].map(([k,l,ph])=>
+      `<div><label class="f">${l}</label><input type="text" data-meta="${k}" value="${esc(S.meta[k])}" placeholder="${ph}"></div>`).join("")}
+  </div></div>
+  <div class="alert ${tf.cls}"><span class="ic">${tf.ic||"○"}</span><span>${esc(tf.txt)}</span></div>
+  <div class="tiles">
+    <div class="tile"><div class="k">総合スコア（100点満点）</div><div class="v">${t===null?"−":t.toFixed(1)}</div><div class="s">${t===null?"スコアリング入力後に表示":`重み A${S.weights.A}／B${S.weights.B}／C${S.weights.C}／D${S.weights.D}`}</div></div>
+    <div class="tile"><div class="k">自動判定（参考）</div><div class="v" style="font-size:16px;padding-top:6px">${aj?`<span class="badge ${badgeCls(aj)}">${esc(aj.split("（")[0])}</span><div class="s" style="margin-top:4px">${esc(aj.split("（")[1]?.replace("）","")||"")}</div>`:"−"}</div></div>
+    <div class="tile"><div class="k">PM最終判定</div><div class="v" style="font-size:16px;padding-top:6px">${S.pm?`<span class="badge ${badgeCls(S.pm)}">${esc(S.pm)}</span>`:"未判定"}</div></div>
+    <div class="tile"><div class="k">調査進捗（全12シート）</div><div class="v">${Math.round(totalProg()*100)}%</div><div class="s">完了＋対象外 ÷ 168項目</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>カテゴリ別スコア（5点満点）</h3><div class="radar-wrap" id="radar"></div>${catRows}</div>
+    <div class="card"><h3>シート別進捗（クリックで入力へ）</h3>${progRows}</div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>物件概要（1-1・1-2から自動表示）</h3><div class="ovgrid">
+      ${ovRow("所在地",val("1-1-01"))}${ovRow("構造・階数",[val("1-1-04"),val("1-1-05")].filter(Boolean).join("・"))}
+      ${ovRow("延床面積",val("1-1-03")&&val("1-1-03")+" ㎡")}${ovRow("竣工",val("1-1-06")&&val("1-1-06")+(age?`（築${age.replace(" ","")}）`:""))}
+      ${ovRow("耐震区分",val("1-2-01"))}${ovRow("Is値",val("1-2-04"))}
+      ${ovRow("権利",val("1-1-12")&&`土地：${val("1-1-12")}／建物：${val("1-1-13")}`)}${ovRow("残存契約",rem)}
+      ${Object.values(S.items).some(x=>x.v)?"":'<div class="k">−</div><div>調査入力を始めると自動で表示されます</div>'}
+    </div></div>
+    <div class="card"><h3>総評・特記事項（PM記入）</h3>
+      <textarea data-meta="soken" rows="5" placeholder="スコアと調査結果を踏まえた総合所見">${esc(S.meta.soken)}</textarea></div>
+  </div>`;
+  drawRadar();
+}
+
+/* ---- レーダーチャート（SVG） ---- */
+function drawRadar(){
+  const el=$("#radar"); if(!el) return;
+  const cats=["A","B","C","D"], W=360, H=252, cx=W/2, cy=H/2+6, R=88;
+  const pt=(i,r)=>{ const ang=-Math.PI/2 + i*Math.PI/2; return [cx+r*Math.cos(ang), cy+r*Math.sin(ang)]; };
+  let g="";
+  for(let lv=1;lv<=5;lv++){
+    const ps=cats.map((_,i)=>pt(i,R*lv/5).join(",")).join(" ");
+    g+=`<polygon points="${ps}" fill="none" stroke="var(--grid)" stroke-width="1"/>`;
+  }
+  cats.forEach((_,i)=>{ const [x,y]=pt(i,R); g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--grid)" stroke-width="1"/>`; });
+  const vals=cats.map(c=>catAvg(c));
+  const has=vals.some(v=>v!==null);
+  if(has){
+    const ps=vals.map((v,i)=>pt(i,R*(v||0)/5));
+    g+=`<polygon points="${ps.map(p=>p.join(",")).join(" ")}" fill="var(--seq)" fill-opacity=".14" stroke="var(--seq)" stroke-width="2" stroke-linejoin="round"/>`;
+    ps.forEach((p,i)=>{ if(vals[i]!==null){
+      g+=`<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="var(--seq)" stroke="var(--surface)" stroke-width="2" data-ax="${cats[i]}" style="cursor:pointer"/>`;
+      const lp=(i===1||i===3)?[p[0],p[1]-13]:pt(i,R*(vals[i])/5+14);
+      g+=`<text x="${lp[0]}" y="${lp[1]+4}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${vals[i].toFixed(1)}</text>`;
+    }});
+  } else {
+    g+=`<text x="${cx}" y="${cy}" text-anchor="middle" font-size="11" fill="var(--muted)">スコア入力後に表示</text>`;
+  }
+  const lbl=[["A 建物・安全性",cx,cy-R-10],["B 施設機能",cx+R+10,cy,"start"],["C 商圏・将来性",cx,cy+R+16],["D 資産・投資",cx-R-10,cy,"end"]];
+  lbl.forEach(([t,x,y,an])=>{ g+=`<text x="${x}" y="${y+4}" text-anchor="${an||"middle"}" font-size="10.5" fill="var(--ink2)">${t}</text>`; });
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:340px" role="img" aria-label="カテゴリ別スコアのレーダーチャート">${g}</svg>`;
+  el.querySelectorAll("[data-ax]").forEach(c=>{
+    c.addEventListener("pointerenter",e=>{ const ax=e.target.dataset.ax;
+      showTip(e,`${ax} ${M.catShort[ax]}：${catAvg(ax).toFixed(2)}点（重み${S.weights[ax]}%）`); });
+    c.addEventListener("pointerleave",hideTip);
+  });
+}
+function showTip(e,txt){ const t=$("#tip"); t.textContent=txt; t.style.opacity=1;
+  t.style.left=Math.min(e.clientX+12,innerWidth-250)+"px"; t.style.top=(e.clientY+14)+"px"; }
+function hideTip(){ $("#tip").style.opacity=0; }
+
+/* ================= 調査入力 ================= */
+function isLong(it){ return /所見|ヒアリング|履歴|課題|要因|位置づけ|条項|状況$/.test(it.label)||/列記|所見/.test(it.fmt); }
+function renderInput(){
+  const sh = M.sheets.find(s=>s.id===curSheet);
+  const chipGroups = M.catNames.map((cn,ci)=>{
+    const chips = M.sheets.filter(s=>s.cat===ci).map(s=>
+      `<button class="chip ${s.id===curSheet?"on":""}" data-sheet="${s.id}"><span class="dot cat${ci}"></span>${s.id} ${esc(s.short)}</button>`).join("");
+    return `<div class="catlbl">${cn}</div><div class="chips">${chips}</div>`;
+  }).join("");
+  const p=Math.round(sheetProg(sh)*100);
+  const rows = sh.items.map(it=>{
+    const d=item(it.no);
+    let ctrl;
+    if(it.kind==="a"){
+      ctrl=`<div class="auto-v" data-autocell="${it.auto}">${autoVal(it.auto)||"（自動計算）"}</div>`;
+    } else if(it.dv){
+      const ops=M.lists[it.dv].map(o=>`<option ${d.v===o?"selected":""}>${o}</option>`).join("");
+      ctrl=`<select data-i="${it.no}" data-f="v"><option value="">— 選択 —</option>${ops}</select>`;
+    } else if(isLong(it)){
+      ctrl=`<textarea data-i="${it.no}" data-f="v" rows="2" placeholder="${esc(it.fmt)}">${esc(d.v)}</textarea>`;
+    } else {
+      const im=/^(㎡|人|台|％|千円|万円|世帯|指数|数値|年)/.test(it.fmt)?' inputmode="decimal"':"";
+      ctrl=`<input type="text" data-i="${it.no}" data-f="v" value="${esc(d.v)}" placeholder="${esc(it.fmt)}"${im}>`;
+    }
+    const stSel = it.kind==="a" ? `<div class="auto-v" style="font-size:13px">対象外（自動）</div>` :
+      `<select class="st st-${d.st}" data-i="${it.no}" data-f="st">${M.lists.status.map(o=>`<option ${d.st===o?"selected":""}>${o}</option>`).join("")}</select>`;
+    return `<div class="item">
+      <div class="top"><span class="no">${it.no}</span><span class="lb">${esc(it.label)}</span><span class="fmt">${esc(it.fmt)}</span></div>
+      <div class="src">情報源：${esc(it.source)}｜方法：${esc(it.method)}</div>
+      <div class="irow"><div>${ctrl}</div>
+        <div><input type="text" data-i="${it.no}" data-f="note" value="${esc(d.note)}" placeholder="特記事項・写真No"></div></div>
+      ${it.kind==="a"?"":`<div class="irow3">${stSel}
+        <input type="date" data-i="${it.no}" data-f="date" value="${esc(d.date)}">
+        <input type="text" data-i="${it.no}" data-f="by" value="${esc(d.by)}" placeholder="記入者" list="names"></div>`}
+    </div>`;
+  }).join("");
+  const idx=M.sheets.findIndex(s=>s.id===curSheet);
+  const prev=M.sheets[idx-1], next=M.sheets[idx+1];
+  const names=[...new Set(Object.values(S.items).map(x=>x.by).filter(Boolean))];
+  $("#view").innerHTML = `${chipGroups}
+  <div class="card" style="margin-top:12px">
+    <div class="shead"><h2>${esc(sh.title)}</h2>
+      <span class="pbar" style="max-width:160px"><i id="shBar" style="width:${p}%"></i></span><span class="pc" id="shPc" style="font-size:12px">${p}%</span></div>
+    ${rows}
+    <div class="snav">
+      <button data-nav="${prev?prev.id:""}" ${prev?"":"disabled"}>← ${prev?prev.id:""}</button>
+      <button data-nav="${next?next.id:""}" ${next?"":"disabled"}>${next?next.id:""} →</button>
+    </div>
+  </div>
+  <datalist id="names">${names.map(n=>`<option value="${esc(n)}">`).join("")}</datalist>`;
+}
+
+/* ================= スコアリング ================= */
+function renderScore(){
+  const tf=taishinFlag(), aj=autoJudge(), t=totalScore();
+  const wsum=S.weights.A+S.weights.B+S.weights.C+S.weights.D;
+  const axRows = M.axes.map(a=>{
+    const v=S.scores[a.no]||0, cr=M.criteria[a.no];
+    const ci={A:0,B:1,C:2,D:3}[a.cat];
+    return `<div class="ax">
+      <div class="top" style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">
+        <span class="dot cat${ci}"></span><span class="no" style="font-size:11px;color:var(--muted)">${a.no}</span>
+        <span class="nm">${esc(a.name)}</span><span class="pt">${esc(a.point)}｜参照：${esc(a.ref)}</span></div>
+      <div class="rate" role="radiogroup" aria-label="${esc(a.name)}の評価">
+        ${[1,2,3,4,5].map(n=>`<button data-ax="${a.no}" data-n="${n}" class="${v===n?"on":""}" aria-pressed="${v===n}">${n}</button>`).join("")}
+      </div>
+      <details class="cr"><summary>判定基準を見る（5点／3点／1点）</summary>
+        <div class="cg"><b>5点</b><span>${esc(cr.p5)}</span><b>3点</b><span>${esc(cr.p3)}</span><b>1点</b><span>${esc(cr.p1)}</span></div></details>
+      <div style="margin-top:8px"><input type="text" data-reason="${a.no}" value="${esc(S.reasons[a.no]||"")}" placeholder="評価根拠・特記（任意）"></div>
+    </div>`;
+  }).join("");
+  const catTiles=["A","B","C","D"].map((c,i)=>{
+    const a=catAvg(c), conv=a===null?null:Math.round(a*S.weights[c]/5*10)/10;
+    return `<div class="tile"><div class="k"><span class="dot cat${i}" style="display:inline-block;margin-right:5px"></span>${c} ${M.catShort[c]}</div>
+      <div class="v" style="font-size:22px">${a===null?"−":a.toFixed(2)}</div>
+      <div class="s">重み${S.weights[c]}% → 換算 ${conv===null?"−":conv.toFixed(1)}点</div></div>`;
+  }).join("");
+  $("#view").innerHTML = `
+  <div class="card"><h3>重み設定（合計100）</h3><div class="wrow">
+    ${["A","B","C","D"].map(c=>`<div><label class="f">${c} ${M.catShort[c]}</label>
+      <input type="text" inputmode="numeric" data-w="${c}" value="${S.weights[c]}"></div>`).join("")}
+    <div class="wsum ${wsum===100?"":"ng"}" id="wsum">合計 ${wsum}${wsum===100?"":"（100に調整してください）"}</div>
+  </div></div>
+  <div class="card"><h3>評価入力（20軸・5段階）</h3>${axRows}</div>
+  <div class="tiles" id="scTiles">${catTiles}
+    <div class="tile"><div class="k">総合スコア（100点満点）</div><div class="v">${t===null?"−":t.toFixed(1)}</div><div class="s">${t===null?"全20軸の入力で算出":""}</div></div>
+  </div>
+  <div class="alert ${tf.cls}"><span class="ic">${tf.ic||"○"}</span><span>${esc(tf.txt)}</span></div>
+  <div class="card"><h3>投資区分判定</h3>
+    <div class="mgrid">
+      <div><label class="f">自動判定（参考）：建物A×商圏C マトリクス</label>
+        <div class="auto-v">${aj?esc(aj):"（A・Cカテゴリの入力後に表示）"}</div></div>
+      <div><label class="f">PM最終判定</label>
+        <select data-pm><option value="">— 未判定 —</option>${M.lists.hantei.map(o=>`<option ${S.pm===o?"selected":""}>${o}</option>`).join("")}</select></div>
+    </div>
+    <div style="margin-top:10px"><label class="f">判定理由・条件</label>
+      <textarea data-pmreason rows="2">${esc(S.pmReason)}</textarea></div>
+    <table class="matrix"><tr><th></th><th>建物・安全性 ＜3</th><th>建物・安全性 ≧3</th></tr>
+      <tr><th>商圏・将来性 ≧3</th><td>S：戦略投資</td><td>A：継続投資</td></tr>
+      <tr><th>商圏・将来性 ＜3</th><td>C：再編検討</td><td>B：維持投資</td></tr></table>
+    <p class="note">※参考ロジック。B・Dスコア、耐震フラグ、投資額を踏まえてPMが最終判定します。</p>
+  </div>`;
+}
+
+/* ================= データ・使い方 ================= */
+function renderData(){
+  $("#view").innerHTML = `
+  <div class="card"><h3>データの保存・読み込み</h3>
+    <p class="note">このプロトタイプはブラウザ内でのみ動作し、サーバー保存はありません。<b>作業データはJSONファイルとして書き出して保管</b>し、再開時に読み込んでください（タブを閉じるとデータは消えます）。</p>
+    <div class="btnrow">
+      <button class="btn pri" id="btnSave">JSON書き出し（保存）</button>
+      <button class="btn" id="btnLoad">JSON読み込み</button>
+      <button class="btn" id="btnDemo">デモデータを読込</button>
+      <button class="btn" id="btnPrint">ダッシュボードを印刷</button>
+      <button class="btn danger" id="btnClear">全データ消去</button>
+    </div></div>
+  <div class="card"><h3>使い方（Excel版カルテと同じ流れ）</h3>
+    <p class="note">① ダッシュボードで店舗基本情報を入力 → ② 「調査入力」で12シート・168項目を記入（状況を更新すると進捗率に反映） → ③ 「スコアリング」で20軸を5段階評価（重み付け・総合スコア・投資区分判定は自動） → ④ ダッシュボードで結果確認・総評記入 → JSON保存。</p>
+    <p class="note">自動計算（築年数・残存契約・トヨタシェア・人口指数2040）、耐震フラグ、判定マトリクスはExcel版と同一ロジックです。</p></div>
+  <div class="card"><h3>本格運用に向けた拡張候補</h3>
+    <p class="note">複数店舗の一覧・比較ダッシュボード／複数人同時編集とクラウド保存／写真アップロードと項目紐付け／権限管理（クライアント閲覧用）／全店舗サマリーの自動集計。kintone等ローコード移行かスクラッチ開発かは、パイロット検証後に判断。</p></div>
+  <p class="note" style="text-align:center">店舗カルテ プロトタイプ v0.1｜エイトデザイン株式会社</p>`;
+}
+
+/* ================= 描画・イベント ================= */
+function render(){
+  ({dash:renderDash, input:renderInput, score:renderScore, data:renderData})[curView]();
+  updateHead();
+}
+document.getElementById("tabs").addEventListener("click", e=>{
+  const b=e.target.closest("button[data-v]"); if(!b) return;
+  curView=b.dataset.v;
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  render(); scrollTo(0,0);
+});
+$("#view").addEventListener("click", e=>{
+  const chip=e.target.closest("[data-sheet]"); if(chip){ curSheet=chip.dataset.sheet; renderInput(); scrollTo(0,0); return; }
+  const nav=e.target.closest("[data-nav]"); if(nav&&nav.dataset.nav){ curSheet=nav.dataset.nav; renderInput(); scrollTo(0,0); return; }
+  const go=e.target.closest("[data-goto]"); if(go){ curSheet=go.dataset.goto; curView="input";
+    document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x.dataset.v==="input")); render(); scrollTo(0,0); return; }
+  const rb=e.target.closest(".rate button"); if(rb){
+    const ax=rb.dataset.ax, n=+rb.dataset.n;
+    S.scores[ax]=(S.scores[ax]===n)?0:n; dirty=true; renderScore(); updateHead(); return; }
+});
+$("#view").addEventListener("input", e=>{
+  const t=e.target; dirty=true;
+  if(t.dataset.meta!==undefined){ S.meta[t.dataset.meta]=t.value; updateHead(); return; }
+  if(t.dataset.i){ const d=item(t.dataset.i); d[t.dataset.f]=t.value;
+    if(t.dataset.f==="st"){ t.className="st st-"+t.value;
+      const sh=M.sheets.find(s=>s.id===curSheet), p=Math.round(sheetProg(sh)*100);
+      const bar=$("#shBar"), pc=$("#shPc"); if(bar){bar.style.width=p+"%"; pc.textContent=p+"%";}
+    }
+    document.querySelectorAll("[data-autocell]").forEach(el=>{ el.textContent=autoVal(el.dataset.autocell)||"（自動計算）"; });
+    updateHead(); return; }
+  if(t.dataset.w){ const v=parseInt(t.value)||0; S.weights[t.dataset.w]=v;
+    const ws=S.weights.A+S.weights.B+S.weights.C+S.weights.D, el=$("#wsum");
+    el.textContent="合計 "+ws+(ws===100?"":"（100に調整してください）"); el.className="wsum "+(ws===100?"":"ng"); updateHead(); return; }
+  if(t.dataset.reason!==undefined){ S.reasons[t.dataset.reason]=t.value; return; }
+  if(t.dataset.pm!==undefined){ S.pm=t.value; updateHead(); return; }
+  if(t.dataset.pmreason!==undefined){ S.pmReason=t.value; return; }
+});
+$("#view").addEventListener("change", e=>{
+  if(e.target.dataset.pm!==undefined){ S.pm=e.target.value; dirty=true; renderScore(); updateHead(); }
+});
+
+/* ---- 保存・読込 ---- */
+function saveJSON(){
+  const data=JSON.stringify({app:"store-karte-proto",ver:"0.1",saved:new Date().toISOString(),state:S},null,1);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
+  const nm=(S.meta.storeNo||"店舗")+"_"+(S.meta.storeName||"カルテ").replace(/[\\/:*?"<>|]/g,"");
+  a.download=`カルテ_${nm}_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(a.href); dirty=false; updateHead();
+}
+function loadJSON(file){
+  const r=new FileReader();
+  r.onload=()=>{ try{
+      const d=JSON.parse(r.result);
+      if(!d.state||d.app!=="store-karte-proto") throw new Error("形式が違います");
+      S=Object.assign(blankState(),d.state); dirty=false; render();
+    }catch(err){ alert("読み込みに失敗しました："+err.message); } };
+  r.readAsText(file);
+}
+function bindDataButtons(){
+  document.body.addEventListener("click", e=>{
+    const id=e.target.id;
+    if(id==="btnSave"||id==="btnSave2") saveJSON();
+    if(id==="btnLoad") $("#file").click();
+    if(id==="btnDemo"||id==="btnDemo2"){ if(!dirty||confirm("現在の入力を破棄してデモデータを読み込みますか？")){ S=Object.assign(blankState(),JSON.parse(JSON.stringify(DEMO))); dirty=false; curView="dash";
+      document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x.dataset.v==="dash")); render(); scrollTo(0,0);} }
+    if(id==="btnClear"){ if(confirm("すべての入力を消去します。よろしいですか？")){ S=blankState(); dirty=false; render(); } }
+    if(id==="btnPrint"){ curView="dash"; document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x.dataset.v==="dash")); render(); setTimeout(()=>print(),150); }
+  });
+  $("#file").addEventListener("change", e=>{ if(e.target.files[0]) loadJSON(e.target.files[0]); e.target.value=""; });
+}
+addEventListener("beforeunload", e=>{ if(dirty){ e.preventDefault(); e.returnValue=""; } });
+bindDataButtons();
+render();
+</script>
+</body>
+</html>
